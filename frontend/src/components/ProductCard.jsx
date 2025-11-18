@@ -9,9 +9,11 @@ export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
 
-  
   const [showModal, setShowModal] = useState(false);
   const [showFullDesc, setShowFullDesc] = useState(false);
+
+  // Always use backend "id"
+  const productId = product.id;
 
   const truncatedDesc =
     product.description && product.description.length > 80
@@ -29,8 +31,8 @@ export default function ProductCard({ product }) {
         {/* IMAGE */}
         <div className="w-full h-64 overflow-hidden">
           <img
-            src={product.img || product.image}
-            alt={product.title || product.name}
+            src={product.img}
+            alt={product.title}
             className="w-full h-full object-cover transition-transform hover:scale-105"
           />
         </div>
@@ -38,7 +40,7 @@ export default function ProductCard({ product }) {
         {/* DETAILS */}
         <div className="p-4">
           <h3 className="text-lg font-serifFancy font-semibold text-gray-900">
-            {product.title || product.name}
+            {product.title}
           </h3>
 
           <p className="text-gray-600 mt-1 text-sm">
@@ -63,18 +65,16 @@ export default function ProductCard({ product }) {
 
             {/* RATING */}
             <span className="flex items-center text-yellow-500 font-semibold">
-              {product.rating
-                ? Array.from({ length: 5 }, (_, i) => (
-                    <FaStar
-                      key={i}
-                      className={
-                        i < Math.round(product.rating)
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }
-                    />
-                  ))
-                : "No rating"}
+              {Array.from({ length: 5 }, (_, i) => (
+                <FaStar
+                  key={i}
+                  className={
+                    i < Math.round(product.rating)
+                      ? "text-yellow-400"
+                      : "text-gray-300"
+                  }
+                />
+              ))}
             </span>
           </div>
 
@@ -104,35 +104,33 @@ export default function ProductCard({ product }) {
             </button>
 
             <img
-              src={product.img || product.image}
-              alt={product.title || product.name}
+              src={product.img}
+              alt={product.title}
               className="w-full h-64 object-cover rounded-lg mb-4"
             />
 
             <h2 className="text-2xl font-serifFancy font-bold text-gray-900 mb-2">
-              {product.title || product.name}
+              {product.title}
             </h2>
 
             <p className="text-gray-700 mb-2">{product.description}</p>
             <p className="text-gray-500 mb-2">Category: {product.category}</p>
-            <p className="text-gray-500 mb-2">Brand: {product.brand || "-"}</p>
+            <p className="text-gray-500 mb-2">Brand: {product.brand}</p>
             <p className="text-gray-500 mb-2">Stock: {product.stock}</p>
 
             {/* Rating */}
             <div className="flex items-center mb-4">
               <span className="flex items-center text-yellow-500">
-                {product.rating
-                  ? Array.from({ length: 5 }, (_, i) => (
-                      <FaStar
-                        key={i}
-                        className={
-                          i < Math.round(product.rating)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))
-                  : "No rating"}
+                {Array.from({ length: 5 }, (_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < Math.round(product.rating)
+                        ? "text-yellow-400"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
               </span>
               <span className="ml-2 text-gray-600">{product.rating}/5</span>
             </div>
@@ -140,7 +138,7 @@ export default function ProductCard({ product }) {
             {/* BUTTONS */}
             <div className="flex gap-4">
               <button
-                onClick={() => addToCart(product)}
+                onClick={() => addToCart({ ...product, id: productId })}
                 className="flex-1 py-2 rounded-lg bg-brand-navy text-white font-semibold hover:bg-brand-gold hover:text-brand-charcoal transition"
               >
                 Add to Cart
@@ -148,8 +146,8 @@ export default function ProductCard({ product }) {
 
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // FIX: does not close modal
-                  addToWishlist(product);
+                  e.stopPropagation();
+                  addToWishlist({ ...product, id: productId });
                 }}
                 className="py-2 px-4 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
               >

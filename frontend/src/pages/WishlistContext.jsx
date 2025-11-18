@@ -3,79 +3,82 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 const WishlistContext = createContext();
+export const useWishlist = () => useContext(WishlistContext);
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
   const BASE_URL = "http://localhost:5000/api";
 
-  // Always attach token to axios
-const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-});
+  // 🔥 ALWAYS reads latest token
+  const axiosInstance = axios.create({ baseURL: BASE_URL });
+  axiosInstance.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  });
 
-// Interceptor attaches token every request
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+  const normalizeItem = (item) => ({
+    ...item,
+    id: item.id || item._id,
+  });
 
-  // Fetch wishlist
   useEffect(() => {
-    if (!token) {
-      setWishlist([]);
-      setLoading(false);
-      return;
-    }
-
     const fetchWishlist = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setWishlist([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await axiosInstance.get("/wishlist");
-        setWishlist(res.data.items);
+        setWishlist((res.data.items || []).map(normalizeItem));
       } catch (err) {
-        console.error("Error fetching wishlist:", err.response?.data);
+        console.error("Wishlist fetch error:", err.response?.data || err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchWishlist();
-  }, [token]);
+  }, []);
 
-  // ADD TO WISHLIST
+  // ADD
   const addToWishlist = async (product) => {
+    const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
+
+    const productId = product.id || product._id;
+    if (!productId) return alert("❌ Product ID missing");
 
     try {
       const payload = {
-        id: product._id || product.id,
+        id: productId,
         title: product.title,
         price: product.price,
         img: product.img,
       };
 
       const res = await axiosInstance.post("/wishlist/add", payload);
-
-      setWishlist(res.data.items);
+      setWishlist((res.data.items || []).map(normalizeItem));
     } catch (err) {
-      console.error("Add to wishlist failed:", err.response?.data || err);
+      console.error("Wishlist add error:", err.response?.data || err);
     }
   };
 
-  // REMOVE FROM WISHLIST
-  const removeFromWishlist = async (productId) => {
+  // REMOVE
+  const removeFromWishlist = async (id) => {
+    const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
 
     try {
-      const res = await axiosInstance.delete(`/wishlist/${productId}`);
-      setWishlist(res.data.items);
+      const res = await axiosInstance.delete(`/wishlist/${id}`);
+      setWishlist((res.data.items || []).map(normalizeItem));
     } catch (err) {
-      console.error("Remove wishlist failed:", err.response?.data);
+      console.error("Wishlist remove error:", err.response?.data || err);
     }
   };
 
@@ -87,5 +90,3 @@ axiosInstance.interceptors.request.use((config) => {
     </WishlistContext.Provider>
   );
 };
-
-export const useWishlist = () => useContext(WishlistContext);

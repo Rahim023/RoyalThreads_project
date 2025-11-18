@@ -1,16 +1,15 @@
 import mongoose from "mongoose";
+
 const productSchema = new mongoose.Schema({
-  title: { type: String },
-  name: { type: String },        // fallback
-  description: { type: String }, // add description
-  brand: { type: String },       // optional
+  title: { type: String, required: true },
+  description: { type: String, default: "" },
+  brand: { type: String, default: "" },
   category: { type: String, required: true },
-  img: { type: String },
-  image: { type: String },       // fallback
+  img: { type: String, default: "" },
   price: { type: Number, required: true },
   stock: { type: Number, default: 0 },
-  rating: { type: Number, default: 0 }, // add rating
+  rating: { type: Number, default: 0 },
   trending: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true }); // creates createdAt & updatedAt
+
 export default mongoose.model("Product", productSchema);

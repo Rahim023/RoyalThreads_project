@@ -1,130 +1,152 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
 import Header from "../components/Header";
-import { useCart } from "./CartContext";
-import { useWishlist } from "./WishlistContext";
+import ProductCard from "../components/ProductCard";
+import FeaturedCollection from "./FeaturedCollection";
 
 export default function Women() {
-  const { addToCart } = useCart();
-  const { addToWishlist } = useWishlist();
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentHero, setCurrentHero] = useState(0);
 
-  const categories = [
-    { title: "Casual Wear", image: "/assets/images/Casualwear.jpg", link: "/women/casual" },
-    { title: "Evening Gowns", image: "/assets/images/Evening_Gowns.jpg", link: "/women/evening" },
-    { title: "Jewelry & Accessories", image: "/assets/images/JewelryA.jpg", link: "/women/jewelry" },
-    { title: "Bridal Collection", image: "/assets/images/Bridal_collection_converted.jpg", link: "/women/bridal" },
-    { title: "Signature Series", image: "/assets/images/Signature_Series.jpg", link: "/signature" },
-    { title: "Luxury Sarees", image: "/assets/images/Luxury_sarees_c.jpg", link: "/women/sarees" },
+  const BASE_URL = "http://localhost:5000/api";
+
+  // Hero images
+  const heroImages = [
+    "/women1.jpg",
+    "/women2.jpg",
+    "/women3.jpg",
   ];
 
-  const products = [
-    { id: 1, title: "Designer Kurti", price: 79, img: "https://picsum.photos/id/501/400/400" },
-    { id: 2, title: "Luxury Saree", price: 129, img: "https://picsum.photos/id/502/400/400" },
-    { id: 3, title: "Bridal Jewelry", price: 199, img: "https://picsum.photos/id/503/400/400" },
-  ];
+  // Auto-change hero image every 4 sec
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHero((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch products (only women category)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/products`);
+        const womenProducts = res.data.filter(
+          (p) => p.category?.toLowerCase() === "women"
+        );
+        setProducts(womenProducts);
+        setFilteredProducts(womenProducts);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Handle search
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = products.filter(
+      (p) =>
+        p.title.toLowerCase().includes(query) ||
+        (p.description && p.description.toLowerCase().includes(query))
+    );
+    setFilteredProducts(filtered);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-brand-charcoal">
-      {/* Header */}
+    <div className="min-h-screen bg-brand-mist">
+
+      {/* Global Header */}
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 text-center bg-gradient-to-b from-brand-mist to-white">
-        <h1 className="text-5xl md:text-6xl font-serif font-bold text-brand-navy mb-6">
-          Women’s Royal Collection
-        </h1>
-        <p className="text-lg text-brand-charcoal/80 max-w-2xl mx-auto">
-          Discover elegant styles, from everyday essentials to timeless couture.
-        </p>
-      </section>
+      <div className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden">
+        {heroImages.map((img, idx) => (
+          <motion.img
+            key={idx}
+            src={img}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: currentHero === idx ? 1 : 0 }}
+            transition={{ duration: 1.2 }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ))}
 
-      {/* Featured Categories */}
-      <section className="px-6 md:px-20 py-16">
-        <h2 className="text-3xl font-bold text-center text-brand-navy mb-10">
-          Explore Our Categories
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {categories.map((item, idx) => (
-            <div
-              key={idx}
-              className="overflow-hidden rounded-2xl shadow-lg bg-white hover:shadow-2xl transition"
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-80 object-cover hover:scale-105 transition-transform duration-500"
-              />
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <Link
-                  to={item.link}
-                  className="inline-block px-6 py-2 rounded-lg border border-brand-gold text-brand-navy font-medium hover:bg-brand-gold hover:text-white transition"
-                >
-                  Explore
-                </Link>
-              </div>
-            </div>
-          ))}
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <motion.h1
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="text-white text-4xl md:text-6xl font-serifFancy font-bold text-center"
+          >
+            Women’s Fashion Collection
+          </motion.h1>
         </div>
-      </section>
+      </div>
 
-      {/* Featured Products */}
-      <section className="px-6 md:px-20 py-16 bg-brand-mist">
-        <h2 className="text-3xl font-bold text-center text-brand-navy mb-10">
-          Featured Products
+      {/* Search Bar */}
+      <div className="px-6 md:px-20 py-8 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="w-full max-w-lg p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition"
+        />
+      </div>
+
+      {/* Featured Collection */}
+      <FeaturedCollection products={products.slice(0, 6)} />
+
+      {/* Explore All Products */}
+      <section className="py-12 px-6 md:px-20">
+        <h2 className="text-3xl md:text-4xl font-serifFancy font-bold text-brand-navy text-center mb-10">
+          Explore All Products
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl2 shadow-luxe overflow-hidden hover:scale-105 transition"
-            >
-              <img src={item.img} alt={item.title} className="w-full h-64 object-cover" />
-              <div className="p-4 text-center">
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-brand-gold font-bold mt-2">${item.price}.00</p>
 
-                {/* Buttons */}
-                <div className="flex gap-3 mt-4 justify-center">
-                  <button
-                    onClick={() => addToCart(item)}
-                    className="flex-1 py-2 px-4 rounded-lg bg-brand-navy text-white hover:bg-brand-gold hover:text-brand-charcoal transition"
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => addToWishlist(item)}
-                    className="px-4 py-2 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
-                  >
-                    ❤️
-                  </button>
-                </div>
-              </div>
-            </div>
+        <motion.div
+          layout
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+        >
+          {filteredProducts.slice(0, 16).map((product) => (
+            <motion.div
+              key={product._id}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ProductCard product={product} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-brand-navy text-brand-ivory py-20 text-center">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-          Royalty Awaits You
+      {/* Subscription Section */}
+      <section className="bg-brand-navy text-brand-ivory py-16 text-center">
+        <h2 className="text-3xl md:text-4xl font-serifFancy font-bold mb-4">
+          Subscribe to Our Newsletter
         </h2>
         <p className="text-lg mb-6">
-          Sign up today and receive{" "}
-          <span className="text-brand-gold font-bold">20% off</span> your first order.
+          Get the latest updates and exclusive offers.
         </p>
-        <Link
-          to="/signup"
-          className="px-8 py-3 bg-brand-gold text-brand-navy font-semibold rounded-xl2 shadow-luxe hover:bg-brand-ivory hover:text-brand-navy transition"
-        >
-          Join Now
-        </Link>
+        <form className="flex justify-center gap-3 flex-wrap">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="p-3 rounded-lg w-64 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold"
+          />
+          <button className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-semibold hover:bg-brand-ivory hover:text-brand-navy transition">
+            Subscribe
+          </button>
+        </form>
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-navy text-brand-ivory py-8 text-center">
-        <p className="text-sm">© 2025 MyClothing. All rights reserved.</p>
+      <footer className="bg-brand-navy text-brand-ivory py-6 text-center mt-12">
+        <p>© 2025 MyClothing. All rights reserved.</p>
       </footer>
     </div>
   );
