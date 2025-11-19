@@ -20,7 +20,7 @@ export const CartProvider = ({ children }) => {
 
   const normalizeItem = (item) => ({
     ...item,
-    id: item.id || item._id,
+    id: item?.id?.toString ? item.id.toString() : item._id?.toString ? item._id.toString() : item.id || item._id,
   });
 
   useEffect(() => {
@@ -44,16 +44,33 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
 
+    console.log("🛒 addToCart received product:", product);
+    console.log("   product.id:", product.id);
+    console.log("   product._id:", product._id);
+
     const productId = product.id || product._id;
-    if (!productId) return alert("❌ Product ID missing");
+    if (!productId) {
+      console.error("❌ Product ID missing in addToCart:", product);
+      return alert("❌ Product ID missing");
+    }
+
+    console.log("✅ Extracted productId:", productId, "Type:", typeof productId);
 
     try {
-      const payload = { productId, quantity: 1 };
-      const res = await axiosInstance.post("/cart/add", payload);
+      // Send ONLY productId to backend
+      const payload = { productId: String(productId) };
+      console.log("📤 Sending payload to /cart/add:", JSON.stringify(payload));
 
-      setCart((res.data.items || []).map(normalizeItem));
+      const res = await axiosInstance.post("/cart/add", payload);
+      console.log("📥 Response from /cart/add:", res.data);
+
+      // Handle response structure
+      const items = res.data.items || [];
+      setCart(items.map(normalizeItem));
+      console.log("✅ Cart updated with items:", items);
     } catch (err) {
-      console.error("Add to cart failed:", err.response?.data || err);
+      console.error("❌ Add to cart failed:", err.response?.data || err.message);
+      alert("Failed to add to cart: " + (err.response?.data?.message || err.message));
     }
   };
 

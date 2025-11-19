@@ -21,7 +21,7 @@ export const WishlistProvider = ({ children }) => {
 
   const normalizeItem = (item) => ({
     ...item,
-    id: item.id || item._id,
+    id: item?.id?.toString ? item.id.toString() : item._id?.toString ? item._id.toString() : item.id || item._id,
   });
 
   useEffect(() => {
@@ -51,21 +51,33 @@ export const WishlistProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
 
+    console.log("❤️ addToWishlist received product:", product);
+    console.log("   product.id:", product.id);
+    console.log("   product._id:", product._id);
+
     const productId = product.id || product._id;
-    if (!productId) return alert("❌ Product ID missing");
+    if (!productId) {
+      console.error("❌ Product ID missing in addToWishlist:", product);
+      return alert("❌ Product ID missing");
+    }
+
+    console.log("✅ Extracted productId:", productId, "Type:", typeof productId);
 
     try {
-      const payload = {
-        id: productId,
-        title: product.title,
-        price: product.price,
-        img: product.img,
-      };
+      // Send ONLY productId to backend
+      const payload = { productId: String(productId) };
+      console.log("📤 Sending payload to /wishlist/add:", JSON.stringify(payload));
 
       const res = await axiosInstance.post("/wishlist/add", payload);
-      setWishlist((res.data.items || []).map(normalizeItem));
+      console.log("📥 Response from /wishlist/add:", res.data);
+
+      // Handle response structure
+      const items = res.data.items || [];
+      setWishlist(items.map(normalizeItem));
+      console.log("✅ Wishlist updated with items:", items);
     } catch (err) {
-      console.error("Wishlist add error:", err.response?.data || err);
+      console.error("❌ Wishlist add error:", err.response?.data || err.message);
+      alert("Failed to add to wishlist: " + (err.response?.data?.message || err.message));
     }
   };
 

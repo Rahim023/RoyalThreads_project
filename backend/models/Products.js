@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
+  _id: { type: String, required: true },  // Explicitly define _id as String for UUID compatibility
   title: { type: String, required: true },
   description: { type: String, default: "" },
   brand: { type: String, default: "" },

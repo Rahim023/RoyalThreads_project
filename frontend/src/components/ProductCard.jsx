@@ -12,8 +12,17 @@ export default function ProductCard({ product }) {
   const [showModal, setShowModal] = useState(false);
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  // Always use backend "id"
-  const productId = product.id;
+  // IMPORTANT: Always ensure we have an ID
+  const productId = product?.id || product?._id;
+
+  // Debug log
+  React.useEffect(() => {
+    if (!productId) {
+      console.warn("⚠️ ProductCard received product without ID:", product);
+    } else {
+      console.log("✅ ProductCard has productId:", productId, "Product:", product);
+    }
+  }, [productId, product]);
 
   const truncatedDesc =
     product.description && product.description.length > 80
@@ -138,7 +147,14 @@ export default function ProductCard({ product }) {
             {/* BUTTONS */}
             <div className="flex gap-4">
               <button
-                onClick={() => addToCart({ ...product, id: productId })}
+                onClick={() => {
+                  console.log("🛒 Add to cart clicked. productId:", productId, "Product:", product);
+                  if (!productId) {
+                    alert("❌ Product ID is missing! Cannot add to cart.");
+                    return;
+                  }
+                  addToCart({ ...product, id: productId });
+                }}
                 className="flex-1 py-2 rounded-lg bg-brand-navy text-white font-semibold hover:bg-brand-gold hover:text-brand-charcoal transition"
               >
                 Add to Cart
@@ -147,6 +163,11 @@ export default function ProductCard({ product }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  console.log("❤️ Add to wishlist clicked. productId:", productId, "Product:", product);
+                  if (!productId) {
+                    alert("❌ Product ID is missing! Cannot add to wishlist.");
+                    return;
+                  }
                   addToWishlist({ ...product, id: productId });
                 }}
                 className="py-2 px-4 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
