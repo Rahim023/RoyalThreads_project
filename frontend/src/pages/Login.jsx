@@ -6,6 +6,7 @@ import { FaApple } from "react-icons/fa";
 import Header from "../components/Header";
 import { api } from "../services/api";
 import LiquidEther from "./LiquidEther";
+import Silk from "../components/Silk";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -44,28 +45,11 @@ export default function Login() {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 0,
+          zIndex: -1,
           pointerEvents: "none",
           backgroundColor: "black",
         }}
-      >
-        <LiquidEther
-          colors={['#200e01','#5B0202','#ede7c7']}
-          mouseForce={20}
-          cursorSize={100}
-          isViscous={false}
-          viscous={2}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.5}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={1}
-          autoIntensity={2.2}
-          takeoverDuration={0.25}
-          autoResumeDelay={3000}
-          autoRampDuration={0.6}
-        />
+      >        <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
       </div>
 
       <Header />

@@ -1,3 +1,4 @@
+// src/components/CircularGallery.jsx
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
 import React from 'react';
@@ -192,7 +193,10 @@ class Media {
     });
     const img = new Image();
     img.crossOrigin = 'anonymous';
+
+    // FIX: Only use your real image — NO PICSUM
     img.src = this.image;
+
     img.onload = () => {
       texture.image = img;
       this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
@@ -310,18 +314,15 @@ class App {
   }
 
   createMedias(items, bend = 1, textColor, borderRadius, font) {
-    const defaultItems = [
-      { image: `https://picsum.photos/seed/1/800/600?grayscale`, text: 'Bridge' },
-      { image: `https://picsum.photos/seed/2/800/600?grayscale`, text: 'Desk Setup' },
-      { image: `https://picsum.photos/seed/3/800/600?grayscale`, text: 'Waterfall' }
-    ];
+    if (!items || !items.length) {
+      console.warn("CircularGallery: No items provided.");
+      return;
+    }
 
-    const galleryItems = items && items.length
-      ? items.map(item => ({
-          image: item.img || `https://picsum.photos/seed/${Math.floor(Math.random() * 1000)}/800/600`,
-          text: item.title || 'No Title'
-        }))
-      : defaultItems;
+    const galleryItems = items.map(item => ({
+      image: item.img || item.image,     // FIXED — NO PICSUM
+      text: item.title || item.name || "No Title",
+    }));
 
     this.mediasImages = galleryItems.concat(galleryItems);
 

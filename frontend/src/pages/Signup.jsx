@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { api } from "../services/api";
 import { motion } from "framer-motion";
 import Particles from "../components/particles";
+import Silk from "../components/Silk";  
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -106,16 +107,7 @@ export default function Signup() {
           backgroundColor: "navy",
         }}
       >
-        <Particles
-          particleColors={["#FFD700"]}
-          particleCount={400}
-          particleSpread={15}
-          speed={0.2}
-          particleBaseSize={140}
-          moveParticlesOnHover={true}
-          alphaParticles={false}
-          disableRotation={false}
-        />
+                <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
       </div>
 
       <div className="min-h-screen flex flex-col justify-center relative">

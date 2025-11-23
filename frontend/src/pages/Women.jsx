@@ -1,26 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, useAnimation, useInView } from "framer-motion";
+import { LucideSearch, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ProductCard from "../components/ProductCard";
-import FeaturedCollection from "./FeaturedCollection";
+import CardSwap, { Card } from "../components/CardSwap";
+import BlurText from "../components/BlurText";
+import ShinyText from "../components/ShinyText";
 
 export default function Women() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentHero, setCurrentHero] = useState(0);
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterOpen, setFilterOpen] = useState(false);
 
+  const navigate = useNavigate();
   const BASE_URL = "http://localhost:5000/api";
+  const filterRef = useRef(null);
 
-  // Hero images
   const heroImages = [
-    "/women1.jpg",
-    "/women2.jpg",
-    "/women3.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage1.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage2.webp",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage3.jpg",
   ];
 
-  // Auto-change hero image every 4 sec
+  // Hero carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
@@ -28,7 +35,7 @@ export default function Women() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch products (only women category)
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -45,22 +52,64 @@ export default function Women() {
     fetchProducts();
   }, []);
 
-  // Handle search
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setFilterOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Search filter
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = products.filter(
+    applyFilters(query, filterCategory);
+  };
+
+  // Apply filter dynamically (boolean category fields)
+  const applyFilters = (query, category) => {
+    let filtered = products.filter(
       (p) =>
         p.title.toLowerCase().includes(query) ||
         (p.description && p.description.toLowerCase().includes(query))
     );
+
+    if (category === "Western") filtered = filtered.filter((p) => p.Western);
+    else if (category === "Indian") filtered = filtered.filter((p) => p.Indian);
+
     setFilteredProducts(filtered);
   };
 
-  return (
-    <div className="min-h-screen bg-brand-mist">
+  // Handle filter click
+  const handleFilterClick = (category) => {
+    setFilterCategory(category);
+    applyFilters(searchQuery, category);
+    setFilterOpen(false);
+  };
 
-      {/* Global Header */}
+  // Featured products are always trending, independent of filters
+  const featuredProducts = products.filter((p) => p.trending).slice(0, 5);
+
+  // Scroll animation for featured section
+  const featuredRef = useRef(null);
+  const isInView = useInView(featuredRef, { margin: "-100px" });
+  const featuredControls = useAnimation();
+
+  useEffect(() => {
+    if (isInView) {
+      featuredControls.start({ opacity: 1, y: 0 });
+    } else {
+      featuredControls.start({ opacity: 0, y: 50 });
+    }
+  }, [isInView]);
+
+  return (
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       {/* Hero Section */}
@@ -75,38 +124,133 @@ export default function Women() {
             className="absolute inset-0 w-full h-full object-cover"
           />
         ))}
-
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center px-4">
           <motion.h1
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="text-white text-4xl md:text-6xl font-serifFancy font-bold text-center"
+            transition={{ duration: 1.2 }}
+            className="text-white text-4xl md:text-6xl font-serifFancy font-bold mb-4"
           >
             Women’s Fashion Collection
           </motion.h1>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-semibold hover:bg-brand-ivory hover:text-brand-navy transition"
+            onClick={() => window.scrollTo({ top: 600, behavior: "smooth" })}
+          >
+            Shop Now
+          </motion.button>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="px-6 md:px-20 py-8 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="w-full max-w-lg p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition"
-        />
+      {/* Search + Filter */}
+      <div className="px-6 md:px-20 py-8 flex flex-wrap justify-center gap-4 relative">
+        <div className="relative flex-1 max-w-lg">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition pl-10"
+          />
+          <LucideSearch
+            className="absolute left-3 top-3.5 text-gray-400"
+            size={20}
+          />
+        </div>
+
+        {/* Filter Dropdown */}
+        <div className="relative" ref={filterRef}>
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
+          >
+            <Filter size={18} />
+            Filter
+          </button>
+          {filterOpen && (
+            <div className="absolute mt-1 bg-white shadow-lg rounded-lg overflow-hidden w-40 z-50">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                onClick={() => handleFilterClick("Western")}
+              >
+                Western
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                onClick={() => handleFilterClick("Indian")}
+              >
+                Indian
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                onClick={() => handleFilterClick("All")}
+              >
+                All
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Featured Collection */}
-      <FeaturedCollection products={products.slice(0, 6)} />
+      {/* Featured Products with BlurText & ShinyText */}
+      {featuredProducts.length > 0 && (
+        <section
+          ref={featuredRef}
+          className="px-6 md:px-20 pt-24 pb-20 flex flex-col md:flex-row items-center md:items-stretch gap-12 relative overflow-hidden"
+        >
+          <motion.div
+            animate={featuredControls}
+            transition={{ type: "spring", stiffness: 80, damping: 12 }}
+            className="flex-1 flex flex-col justify-center"
+          >
+            <BlurText
+              text="Featured Products"
+              delay={100}
+              animateBy="words"
+              direction="top"
+              className="text-5xl md:text-6xl font-serifFancy font-bold text-brand-navy mb-4"
+            />
+            <ShinyText
+              text="Check out our trending collection from all categories"
+              speed={5}
+              className="text-lg md:text-xl text-gray-600"
+            />
+          </motion.div>
+
+          {/* CardSwap */}
+          <div className="flex-1 flex justify-end">
+            <div className="card-swap-wrapper">
+              <CardSwap
+                cardDistance={50}
+                verticalDistance={30}
+                delay={5000}
+                pauseOnHover={false}
+                width={400}
+                height={400}
+              >
+                {featuredProducts.map((product) => (
+                  <Card key={product._id}>
+                    <img
+                      src={product.img}
+                      alt={product.title}
+                      className="w-full h-64 object-cover rounded-lg mb-2 shadow-luxe"
+                    />
+                    <h3 className="text-center font-semibold">{product.title}</h3>
+                  </Card>
+                ))}
+              </CardSwap>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Explore All Products */}
       <section className="py-12 px-6 md:px-20">
         <h2 className="text-3xl md:text-4xl font-serifFancy font-bold text-brand-navy text-center mb-10">
           Explore All Products
         </h2>
-
         <motion.div
           layout
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
@@ -124,7 +268,7 @@ export default function Women() {
         </motion.div>
       </section>
 
-      {/* Subscription Section */}
+      {/* Subscription */}
       <section className="bg-brand-navy text-brand-ivory py-16 text-center">
         <h2 className="text-3xl md:text-4xl font-serifFancy font-bold mb-4">
           Subscribe to Our Newsletter

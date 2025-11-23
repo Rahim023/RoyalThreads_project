@@ -24,7 +24,7 @@ export default function Wishlist() {
       <Header />
 
       {/* ⭐ Hero Section */}
-      <section className="relative pt-20 pb-28 px-6 md:px-20 bg-gradient-to-b from-brand-navy to-brand-mist">
+      <section className="relative pt-20 pb-16 px-6 md:px-20 bg-gradient-to-b from-brand-navy to-brand-mist">
         <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle_at_center,white,transparent_70%)]"></div>
         <div className="relative z-10 text-center">
           <div className="flex justify-center mb-4">

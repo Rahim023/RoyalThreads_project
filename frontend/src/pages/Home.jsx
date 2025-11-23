@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
-import BlurText from "../components/blurtext";
+import BlurText from "../components/BlurText";
 import ShinyText from "../components/ShinyText";
 import ProductCard from "../components/ProductCard";
 import CircularGallery from "../components/CircularGallery";
@@ -276,7 +276,13 @@ export default function Home() {
 
         <div className="w-full h-full mt-10">
           {trendingProducts.length > 0 ? (
-            <CircularGallery items={trendingProducts} bend={5} />
+            <CircularGallery
+  items={trendingProducts.map(p => ({
+    image: p.img || p.image,
+    text: p.title,
+  }))}
+/>
+
           ) : (
             <p className="text-center text-white mt-8">No trending products available.</p>
           )}
