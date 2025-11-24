@@ -15,7 +15,7 @@
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   cursor: pointer;
- box-shadow: 0 15px 35px rgb(72, 15, 3), 0 5px 15px rgba(0, 0, 0, 0.1);
+ box-shadow: 0 15px 35px rgba(7, 22, 98, 0.919), 0 5px 15px rgba(0, 0, 0, 0.1);
   transform-style: preserve-3d;
   will-change: transform;
   background: white;

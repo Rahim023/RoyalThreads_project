@@ -84,13 +84,13 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col px-2 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col px-2 relative overflow-hidden font-sansTrend">
       <Header />
       <Sparkles />
 
       {/* HERO SECTION */}
       <section className="relative flex flex-col items-center justify-center text-center 
-      overflow-hidden min-h-[550px] md:min-h-[750px] ">
+      overflow-hidden min-h-[550px] md:min-h-[750px]">
         <div className="absolute inset-0 -z-10">
           <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
         </div>
@@ -105,7 +105,7 @@ export default function Home() {
         <ShinyText
           text="Curated collections crafted for elegance."
           speed={3}
-          className="mt-4 text-lg font-sansTrend text-black"
+          className="mt-4 text-lg font-script text-black"
         />
         <motion.button
           onClick={() => scrollToSection("trending")}
@@ -117,8 +117,9 @@ export default function Home() {
       </section>
       <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* --- COLLECTIONS SECTION 1: Destination Cozy --- */}
-      <section id="collections" className="relative ">
+      {/* --- COLLECTIONS SECTIONS --- */}
+      {/* Destination Cozy */}
+      <section id="collections" className="relative">
         <div className="relative flex w-full h-[60vh] md:h-[80vh] overflow-hidden">
           {/* Women */}
           <motion.div
@@ -135,7 +136,7 @@ export default function Home() {
               alt="Women Fashion"
             />
             <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-sansTrend text-white drop-shadow-lg cursor-pointer hover:underline"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate("/women");
@@ -160,7 +161,7 @@ export default function Home() {
               alt="Men Fashion"
             />
             <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-sansTrend text-white drop-shadow-lg cursor-pointer hover:underline"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate("/men");
@@ -177,18 +178,18 @@ export default function Home() {
             transition={{ duration: 1.5 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
           >
-            <h2 className="text-4xl md:text-5xl font-sansTrend text-white drop-shadow-lg ">
+            <h2 className="text-4xl md:text-5xl font-serifFancy text-white drop-shadow-lg">
               Destination: Cozy
             </h2>
-            <p className="mt-2 text-lg md:text-xl text-white drop-shadow-md">
+            <p className="mt-2 text-lg md:text-xl font-sansTrend text-white drop-shadow-md">
               Your curated style experience awaits
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* --- COLLECTIONS SECTION 2: Explore More --- */}
-      <section id="explore-more" className="relative ">
+      {/* Explore More Section */}
+      <section id="explore-more" className="relative">
         <div className="relative flex w-full h-[60vh] md:h-[80vh] overflow-hidden">
           {/* Signature */}
           <motion.div
@@ -205,7 +206,7 @@ export default function Home() {
               alt="Signature Collection"
             />
             <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-sansTrend text-white drop-shadow-lg cursor-pointer hover:underline"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate("/signature");
@@ -230,7 +231,7 @@ export default function Home() {
               alt="Kids Collection"
             />
             <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-sansTrend text-white drop-shadow-lg cursor-pointer hover:underline"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate("/kids");
@@ -247,21 +248,15 @@ export default function Home() {
             transition={{ duration: 1.5 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
           >
-            <h2 className="text-4xl md:text-5xl font-sansTrend text-white drop-shadow-lg ">
+            <h2 className="text-4xl md:text-5xl font-serifFancy text-white drop-shadow-lg">
               Explore More
             </h2>
-            <p className="mt-2 text-lg md:text-xl text-white drop-shadow-md">
+            <p className="mt-2 text-lg md:text-xl font-sansTrend text-white drop-shadow-md">
               Discover our exclusive collections
             </p>
           </motion.div>
         </div>
       </section>
-
-      {/* Continue with your Trending, Other Products, Newsletter, Footer */}
-      {/* ... rest of your original code remains unchanged ... */}
-
-
-      <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* Trending Section */}
       <section id="trending" className="py-10 bg-gradient-to-b from-brand-navy to-brand-mist md:px-16">
@@ -269,7 +264,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center text-4xl md:text-5xl font-sansTrend text-brand-mist"
+          className="text-center text-4xl md:text-5xl font-serifFancy text-brand-mist"
         >
           Trending Now
         </motion.h2>
@@ -277,19 +272,16 @@ export default function Home() {
         <div className="w-full h-full mt-10">
           {trendingProducts.length > 0 ? (
             <CircularGallery
-  items={trendingProducts.map(p => ({
-    image: p.img || p.image,
-    text: p.title,
-  }))}
-/>
-
+              items={trendingProducts.map(p => ({
+                image: p.img || p.image,
+                text: p.title,
+              }))}
+            />
           ) : (
             <p className="text-center text-white mt-8">No trending products available.</p>
           )}
         </div>
       </section>
-
-      <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* Other Products Section */}
       <section id="other-products" className="pb-20 bg-gradient-to-b from-brand-mist to-brand-navy px-2 md:px-16">
@@ -297,13 +289,13 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="text-center py-12 text-4xl md:text-5xl font-sansTrend text-brand-navy"
+          className="text-center py-12 text-4xl md:text-5xl font-serifFancy text-brand-navy"
         >
           Other Products
         </motion.h2>
 
         {loading ? (
-          <p className="text-center text-brand-navy">Loading products...</p>
+          <p className="text-center text-brand-navy font-sansTrend">Loading products...</p>
         ) : otherProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {otherProducts.map(product => (
@@ -311,16 +303,16 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-brand-navy">No products available.</p>
+          <p className="text-center text-brand-navy font-sansTrend">No products available.</p>
         )}
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 text-center bg-white">
+      <section className="py-16 text-center bg-white font-sansTrend">
         <h2 className="text-3xl md:text-4xl font-serifFancy text-brand-navy">
           Stay in the Loop
         </h2>
-        <p className="mt-2 text-brand-charcoal/80 font-sansTrend">
+        <p className="mt-2 text-brand-charcoal/80">
           Subscribe for updates, offers, and exclusive collections.
         </p>
 
@@ -337,11 +329,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-navy text-brand-ivory py-10 mt-auto">
+      <footer className="bg-brand-navy text-brand-ivory py-10 mt-auto font-sansTrend">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <h4 className="font-serifFancy mb-4">Shop</h4>
-            <ul className="space-y-2 text-sm font-sansTrend">
+            <ul className="space-y-2 text-sm">
               <li>Women</li>
               <li>Men</li>
               <li>Wedding</li>
@@ -351,7 +343,7 @@ export default function Home() {
 
           <div>
             <h4 className="font-serifFancy mb-4">Help</h4>
-            <ul className="space-y-2 text-sm font-sansTrend">
+            <ul className="space-y-2 text-sm">
               <li>Contact Us</li>
               <li>Shipping</li>
               <li>Returns</li>
@@ -361,7 +353,7 @@ export default function Home() {
 
           <div>
             <h4 className="font-serifFancy mb-4">About</h4>
-            <ul className="space-y-2 text-sm font-sansTrend">
+            <ul className="space-y-2 text-sm">
               <li>Our Story</li>
               <li>Careers</li>
               <li>Sustainability</li>
@@ -370,7 +362,7 @@ export default function Home() {
 
           <div>
             <h4 className="font-serifFancy mb-4">Follow Us</h4>
-            <ul className="space-y-2 text-sm font-sansTrend">
+            <ul className="space-y-2 text-sm">
               <li>Instagram</li>
               <li>Facebook</li>
               <li>Twitter</li>
@@ -378,7 +370,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-sm mt-6 font-sansTrend">
+        <p className="text-center text-sm mt-6">
           © 2025 MyClothing. All rights reserved.
         </p>
       </footer>

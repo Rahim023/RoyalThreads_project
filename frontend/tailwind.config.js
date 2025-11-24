@@ -16,6 +16,10 @@ export default {
       fontFamily: {
              serifFancy: ['Playfair Display', 'serif'],
              sansTrend: ['Poppins', 'sans-serif'],
+             heading: ["'Playfair Display'", "serif"],
+             body: ["'Lato'", "sans-serif"],
+             fancy: ["'Great Vibes'", "cursive"],
+             script: ["'Dancing Script'", "cursive"],
 
       },
       boxShadow: {

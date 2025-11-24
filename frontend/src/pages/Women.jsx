@@ -144,107 +144,109 @@ export default function Women() {
         </div>
       </div>
 
-      {/* Search + Filter */}
-      <div className="px-6 md:px-20 py-8 flex flex-wrap justify-center gap-4 relative">
-        <div className="relative flex-1 max-w-lg">
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition pl-10"
-          />
-          <LucideSearch
-            className="absolute left-3 top-3.5 text-gray-400"
-            size={20}
-          />
-        </div>
-
-        {/* Filter Dropdown */}
-        <div className="relative" ref={filterRef}>
-          <button
-            onClick={() => setFilterOpen(!filterOpen)}
-            className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
-          >
-            <Filter size={18} />
-            Filter
-          </button>
-          {filterOpen && (
-            <div className="absolute mt-1 bg-white shadow-lg rounded-lg overflow-hidden w-40 z-50">
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
-                onClick={() => handleFilterClick("Western")}
-              >
-                Western
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
-                onClick={() => handleFilterClick("Indian")}
-              >
-                Indian
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
-                onClick={() => handleFilterClick("All")}
-              >
-                All
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Featured Products with BlurText & ShinyText */}
-      {featuredProducts.length > 0 && (
-        <section
-          ref={featuredRef}
-          className="px-6 md:px-20 pt-24 pb-20 flex flex-col md:flex-row items-center md:items-stretch gap-12 relative overflow-hidden"
-        >
-          <motion.div
-            animate={featuredControls}
-            transition={{ type: "spring", stiffness: 80, damping: 12 }}
-            className="flex-1 flex flex-col justify-center"
-          >
-            <BlurText
-              text="Featured Products"
-              delay={100}
-              animateBy="words"
-              direction="top"
-              className="text-5xl md:text-6xl font-serifFancy font-bold text-brand-navy mb-4"
+      <div className="bg-gradient-to-b from-brand-maroon to-brand-mist">
+        {/* Search + Filter */}
+        <div className="px-6 md:px-20 py-8 flex flex-wrap justify-center gap-4 relative">
+          <div className="relative flex-1 max-w-lg">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition pl-10"
             />
-            <ShinyText
-              text="Check out our trending collection from all categories"
-              speed={5}
-              className="text-lg md:text-xl text-gray-600"
+            <LucideSearch
+              className="absolute left-3 top-3.5 text-gray-400"
+              size={20}
             />
-          </motion.div>
-
-          {/* CardSwap */}
-          <div className="flex-1 flex justify-end">
-            <div className="card-swap-wrapper">
-              <CardSwap
-                cardDistance={50}
-                verticalDistance={30}
-                delay={5000}
-                pauseOnHover={false}
-                width={400}
-                height={400}
-              >
-                {featuredProducts.map((product) => (
-                  <Card key={product._id}>
-                    <img
-                      src={product.img}
-                      alt={product.title}
-                      className="w-full h-64 object-cover rounded-lg mb-2 shadow-luxe"
-                    />
-                    <h3 className="text-center font-semibold">{product.title}</h3>
-                  </Card>
-                ))}
-              </CardSwap>
-            </div>
           </div>
-        </section>
-      )}
+
+          {/* Filter Dropdown */}
+          <div className="relative" ref={filterRef}>
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
+            >
+              <Filter size={18} />
+              Filter
+            </button>
+            {filterOpen && (
+              <div className="absolute mt-1 bg-white shadow-lg rounded-lg overflow-hidden w-40 z-50">
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                  onClick={() => handleFilterClick("Western")}
+                >
+                  Western
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                  onClick={() => handleFilterClick("Indian")}
+                >
+                  Indian
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-brand-mist"
+                  onClick={() => handleFilterClick("All")}
+                >
+                  All
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Featured Products with BlurText & ShinyText */}
+        {featuredProducts.length > 0 && (
+          <section
+            ref={featuredRef}
+            className="px-6 md:px-20 pt-24 pb-20 flex flex-col md:flex-row items-center md:items-stretch gap-12 relative overflow-hidden"
+          >
+            <motion.div
+              animate={featuredControls}
+              transition={{ type: "spring", stiffness: 80, damping: 12 }}
+              className="flex-1 flex flex-col justify-center"
+            >
+              <BlurText
+                text="Featured Products"
+                delay={100}
+                animateBy="words"
+                direction="top"
+                className="text-5xl md:text-8xl font-fancy font-bold text-brand-navy mb-4"
+              />
+              <ShinyText
+                text="Check out our trending collection from all categories"
+                speed={5}
+                className="text-3xl md:text-3xl font-script text-brand-cloudy"
+              />
+            </motion.div>
+
+            {/* CardSwap */}
+            <div className="flex-1 flex justify-end">
+              <div className="card-swap-wrapper">
+                <CardSwap
+                  cardDistance={50}
+                  verticalDistance={30}
+                  delay={5000}
+                  pauseOnHover={false}
+                  width={400}
+                  height={400}
+                >
+                  {featuredProducts.map((product) => (
+                    <Card key={product._id}>
+                      <img
+                        src={product.img}
+                        alt={product.title}
+                        className="w-full h-64 object-cover rounded-lg mb-2 shadow-luxe"
+                      />
+                      <h3 className="text-center font-semibold">{product.title}</h3>
+                    </Card>
+                  ))}
+                </CardSwap>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
 
       {/* Explore All Products */}
       <section className="py-12 px-6 md:px-20">
@@ -255,7 +257,10 @@ export default function Women() {
           layout
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
         >
-          {filteredProducts.slice(0, 16).map((product) => (
+          {(searchQuery
+            ? filteredProducts
+            : filteredProducts.slice(0, 12) // Show only 12 by default
+          ).map((product) => (
             <motion.div
               key={product._id}
               initial={{ opacity: 0, y: 25 }}
