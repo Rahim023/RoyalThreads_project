@@ -115,7 +115,7 @@ export default function Home() {
           Shop Now
         </motion.button>
       </section>
-      <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
+      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* --- COLLECTIONS SECTIONS --- */}
       {/* Destination Cozy */}
@@ -257,6 +257,7 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* Trending Section */}
       <section id="trending" className="py-10 bg-gradient-to-b from-brand-navy to-brand-mist md:px-16">
@@ -282,6 +283,7 @@ export default function Home() {
           )}
         </div>
       </section>
+      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* Other Products Section */}
       <section id="other-products" className="pb-20 bg-gradient-to-b from-brand-mist to-brand-navy px-2 md:px-16">

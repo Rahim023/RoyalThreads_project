@@ -27,6 +27,8 @@
     "react-parallax-tilt": "^1.7.313",
     "react-router-dom": "7.9.1",
     "slick-carousel": "^1.8.1",
+    "styled-component": "^2.8.0",
+    "styled-components": "^6.1.19",
     "swiper": "^12.0.3",
     "three": "^0.158.0"
   },

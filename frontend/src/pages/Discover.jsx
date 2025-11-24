@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Header from "../components/Header";
+import { LucideArrowRight } from "lucide-react";
 
-export default function DiscoverC() {
+export default function Discover() {
   const [autoIndex, setAutoIndex] = useState(0);
   const spotlight = [
     { id: 1, title: "Signature Embroidery", img: "https://picsum.photos/600?random=11" },
@@ -19,7 +20,6 @@ export default function DiscoverC() {
     return () => clearInterval(t);
   }, []);
 
-  // Parallax effect
   const { scrollY } = useScroll();
   const parallaxY = useTransform(scrollY, [0, 300], [0, -60]);
 
@@ -30,11 +30,11 @@ export default function DiscoverC() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-[#faf6ef] font-sans">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       {/* ⭐ HERO SECTION WITH PARALLAX */}
-      <section className="relative py-28 px-6 md:px-20 text-center">
+      <section className="relative pt-2 pb-20 md:px-2 text-center">
         <motion.img
           style={{ y: parallaxY }}
           src="https://picsum.photos/1600/600?random=30"
@@ -43,7 +43,7 @@ export default function DiscoverC() {
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-10 text-5xl md:text-6xl font-semibold tracking-tight text-gray-900"
+          className="mt-10 text-6xl md:text-6xl font-semibold tracking-tight text-gray-900"
         >
           Discover the <span className="text-brand-gold">Edit</span>
         </motion.h1>
@@ -52,18 +52,18 @@ export default function DiscoverC() {
           reimagined in a modern luxury format.
         </p>
       </section>
+      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
       {/* ⭐ SPOTLIGHT AUTO CARDS (Premium Side Section) */}
-      <section className="px-6 md:px-20 py-20 flex flex-col md:flex-row items-center gap-14">
+      <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-14 bg-gradient-to-b from-mist to-brand-white">
         {/* LEFT TEXT */}
         <div className="flex-1 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-semibold leading-tight">
+          <h2 className="text-xl md:text-6xl font-fancy leading-tight">
             Premium <span className="text-brand-gold">Spotlight</span>
           </h2>
-          <p className="text-gray-600 max-w-md text-lg">
+          <p className="text-gray-600 max-w-md font-sansTrend text-lg">
             Inspired by global runway trends and handcrafted traditions.
           </p>
-
           <div className="h-1 w-32 bg-brand-gold/40 rounded-full"></div>
         </div>
 
@@ -88,24 +88,44 @@ export default function DiscoverC() {
           ))}
         </div>
       </section>
+      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
 
-      {/* ⭐ GLASS GRID (MAGAZINE STYLE) */}
-      <section className="px-6 md:px-20 pb-24">
-        <h3 className="text-3xl font-semibold mb-10">Feature Collections</h3>
+      {/* ⭐ CURATED COLLECTIONS */}
+      <section className="px-6 md:px-20 pb-24 text-center">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-6xl font-fancy pt-10 text-brand-gold"
+        >
+          Curated <span className="text-brand-maroon">Selections</span>
+        </motion.h3>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="mt-2 text-gray-600 text-lg max-w-lg mx-auto"
+        >
+          Explore handpicked pieces showcasing the finest craftsmanship and trending styles.
+        </motion.p>
+        <div className="h-1 w-32 bg-brand-maroon/40 mb-12 mt-4 mx-auto rounded-full"></div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {tiles.map((c, i) => (
             <motion.div
               key={i}
-              whileHover={{ scale: 1.03 }}
-              className="relative overflow-hidden rounded-3xl shadow-xl bg-white/50 backdrop-blur-lg"
+              whileHover={{ scale: 1.05 }}
+              className="relative overflow-hidden rounded-3xl shadow-xl bg-white/50 backdrop-blur-lg cursor-pointer"
             >
               <img src={c.img} className="h-72 w-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
 
-              <div className="absolute bottom-6 left-6 text-white text-2xl font-medium drop-shadow-lg">
-                {c.t}
-              </div>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="absolute bottom-6 left-6 text-white text-2xl font-medium drop-shadow-lg flex items-center gap-2"
+              >
+                {c.t} <LucideArrowRight size={20} />
+              </motion.div>
             </motion.div>
           ))}
         </div>
