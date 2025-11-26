@@ -1,86 +1,279 @@
-import React from "react";
+// src/pages/SignatureSeries.jsx
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import Header from "../components/Header";
-import { useCart } from "./CartContext";   // ✅ Cart Context
-import { useWishlist } from "./WishlistContext"; // ✅ Wishlist Context
-import { FaHeart } from "react-icons/fa"; // ✅ Heart Icon
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Signature() {
-  const { addToCart } = useCart();
-  const { addToWishlist } = useWishlist();
+export default function SignatureSeries() {
+  const [products, setProducts] = useState([]);
+  const [macroShots, setMacroShots] = useState([]);
+  const [spotlight, setSpotlight] = useState([]);
+  const [heroImg, setHeroImg] = useState("");
+  const [splitLeft, setSplitLeft] = useState("");
 
-  const products = [
-    { id: 1, title: "Royal Designer Suit", price: 799, img: "/assets/images/signature_suit.jpg" },
-    { id: 2, title: "Luxury Evening Gown", price: 899, img: "/assets/images/signature_gown.jpg" },
-    { id: 3, title: "Premium Saree", price: 699, img: "/assets/images/signature_saree.jpg" },
-    { id: 4, title: "Exclusive Sherwani", price: 999, img: "/assets/images/signature_sherwani.jpg" },
-  ];
+  // fetch from backend
+  useEffect(() => {
+    fetch("http://localhost:5000/api/signatures")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+
+        // take first two products for hero + split
+        if (data.length > 0) {
+          setHeroImg(data[0].images[0]);
+          setSplitLeft(data[1]?.images[0] || data[0].images[0]);
+
+          // spotlight items simplified
+          setSpotlight(
+            data.slice(0, 3).map((p) => ({
+              id: p.id,
+              title: p.title,
+              img: p.images[0]
+            }))
+          );
+
+          // macro shots from different products
+          const collected = [];
+          data.forEach((item) => {
+            if (item.macroShots && item.macroShots.length > 0) {
+              collected.push(...item.macroShots);
+            }
+          });
+          setMacroShots(collected.slice(0, 4)); // first 4 macro images
+        }
+      });
+  }, []);
+
+  // --------------------
+  // Carousel
+  // --------------------
+  const [centerIndex, setCenterIndex] = useState(0);
+  const carouselTimer = useRef(null);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      carouselTimer.current = setInterval(() => {
+        setCenterIndex((i) => (i + 1) % products.length);
+      }, 4000);
+      return () => clearInterval(carouselTimer.current);
+    }
+  }, [products.length]);
+
+  const prev = () =>
+    setCenterIndex((i) => (i - 1 + products.length) % products.length);
+  const next = () =>
+    setCenterIndex((i) => (i + 1) % products.length);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* 🔹 Global Header */}
+    <div className="min-h-screen bg-brand-mist font-inter">
       <Header />
 
-      {/* 🔹 Hero Section */}
-      <section className="py-20 text-center bg-gradient-to-b from-brand-gold/20 to-white">
-        <h1 className="text-5xl md:text-6xl font-serif font-bold text-brand-navy mb-4">
-          The Signature Collection
-        </h1>
-        <p className="text-lg text-brand-charcoal/80 max-w-2xl mx-auto">
-          Handpicked luxury pieces that define sophistication and timeless elegance.
-        </p>
+      {/* HERO */}
+      <section className="relative h-[78vh] md:h-[85vh] overflow-hidden">
+        <motion.img
+          initial={{ scale: 1.08 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 8, ease: "linear" }}
+          src={heroImg || "https://picsum.photos/1600/900?random=101"}
+          className="absolute inset-0 w-full h-full object-cover brightness-90"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/20"></div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="relative z-10 max-w-4xl mx-auto text-center pt-28"
+        >
+          <h1 className="text-5xl md:text-7xl font-fancy text-brand-ivory tracking-tight drop-shadow-lg">
+            Signature Series
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-brand-ivory/90 max-w-2xl mx-auto font-inter">
+            Where craft meets identity — a limited collection celebrating time-honored techniques.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <a
+              href="#explore"
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold shadow-md"
+            >
+              Explore Collection <ArrowRight size={16} />
+            </a>
+          </div>
+        </motion.div>
       </section>
 
-      {/* 🔹 Product Grid */}
-      <section className="px-6 md:px-20 py-16 bg-brand-mist flex-1">
-        <h2 className="text-3xl font-bold text-center text-brand-navy mb-10">
-          Exclusive Signature Styles
-        </h2>
+      {/* SPLIT REVEAL */}
+      <section id="explore" className="px-6 md:px-20 py-16 bg-brand-ivory">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <motion.div
+            initial={{ x: -30, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7 }}
+            className="relative rounded-3xl overflow-hidden shadow-2xl h-[520px]"
+          >
+            <img
+              src={splitLeft || "https://picsum.photos/900/1400?random=102"}
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl2 shadow-luxe overflow-hidden hover:scale-105 transition-transform duration-300"
-            >
-              {/* Product Image */}
-              <img
-                src={item.img}
-                alt={item.title}
-                className="w-full h-64 object-cover"
-              />
+          <motion.div
+            initial={{ x: 30, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7 }}
+            className="space-y-6"
+          >
+            <h2 className="text-4xl md:text-5xl font-fancy text-brand-navy">
+              The Signature Philosophy
+            </h2>
+            <p className="text-gray-700 text-lg leading-relaxed">
+              The Signature Series represents the peak of our craft.
+            </p>
 
-              {/* Product Info */}
-              <div className="p-4 text-center">
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-brand-gold font-bold mt-2">${item.price}.00</p>
-
-                {/* ✅ Buttons Row */}
-                <div className="flex justify-center gap-3 mt-4">
-                  {/* 🛒 Add to Cart */}
-                  <button
-                    onClick={() => addToCart(item)}
-                    className="flex-1 py-2 px-4 rounded-lg bg-brand-navy text-white hover:bg-brand-gold hover:text-brand-charcoal transition-colors"
-                  >
-                    Add to Cart
-                  </button>
-
-                  {/* ❤️ Add to Wishlist */}
-                  <button
-                    onClick={() => addToWishlist(item)}
-                    className="px-4 py-2 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition-colors"
-                  >
-                    <FaHeart />
-                  </button>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-6 bg-white rounded-2xl shadow-md">
+                <h4 className="font-semibold text-brand-navy">Limited Editions</h4>
+                <p className="text-sm text-gray-600 mt-2">
+                  Small-batch luxury fashion pieces.
+                </p>
+              </div>
+              <div className="p-6 bg-white rounded-2xl shadow-md">
+                <h4 className="font-semibold text-brand-navy">Made to Last</h4>
+                <p className="text-sm text-gray-600 mt-2">
+                  Timeless craftsmanship + premium fabric.
+                </p>
               </div>
             </div>
-          ))}
+
+            <div className="mt-4">
+              <a
+                href="#carousel"
+                className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-brand-navy text-brand-ivory font-medium"
+              >
+                View Signature Pieces <ChevronRight size={16} />
+              </a>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 🔹 Footer */}
-      <footer className="bg-brand-navy text-brand-ivory py-8 text-center">
-        <p className="text-sm">© 2025 MyClothing. All rights reserved.</p>
+      {/* CAROUSEL */}
+      <section id="carousel" className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h3 className="text-4xl font-fancy text-brand-navy mb-6">
+            Signature Pieces
+          </h3>
+
+          <div className="relative">
+            <div className="flex items-center justify-center gap-6">
+              <button onClick={prev} className="p-3 rounded-full bg-black/5 hover:bg-black/10">
+                <ChevronLeft />
+              </button>
+
+              <div className="w-[780px] max-w-full flex items-center justify-center">
+                <div className="relative w-full h-[520px]">
+                  {products.map((p, idx) => {
+                    const offset =
+                      (idx - centerIndex + products.length) % products.length;
+                    const isCenter = offset === 0;
+
+                    const posClass =
+                      offset === 0
+                        ? "translate-x-0 z-20 scale-100"
+                        : offset === 1
+                        ? "translate-x-48 z-10 scale-95 opacity-80"
+                        : offset === products.length - 1
+                        ? "-translate-x-48 z-10 scale-95 opacity-80"
+                        : "translate-x-96 z-0 scale-90 opacity-60";
+
+                    return (
+                      <motion.div
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6 }}
+                        className={`absolute left-0 right-0 mx-auto w-[70%] md:w-[62%] rounded-3xl overflow-hidden shadow-2xl bg-white ${posClass}`}
+                        style={{
+                          transition:
+                            "transform 0.6s ease, opacity 0.6s ease",
+                        }}
+                      >
+                        <img
+                          src={p.images[0]}
+                          className={`w-full h-[360px] object-cover ${
+                            isCenter ? "" : "filter grayscale-10"
+                          }`}
+                        />
+                        <div className="p-6 bg-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-2xl font-semibold text-brand-navy">
+                                {p.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {p.tagline}
+                              </p>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="text-sm text-gray-400">
+                                Limited
+                              </div>
+                              <div className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold/30 text-brand-gold font-medium">
+                                View Piece <ArrowRight size={14} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button onClick={next} className="p-3 rounded-full bg-black/5 hover:bg-black/10">
+                <ChevronRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* MACRO SHOTS */}
+      <section className="py-16 bg-brand-mist">
+        <div className="max-w-7xl mx-auto px-6">
+          <h3 className="text-3xl font-semibold mb-6">Details Up Close</h3>
+
+          <div className="grid grid-cols-6 gap-6">
+            {macroShots.length >= 4 ? (
+              <>
+                <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[0]} className="w-full h-full object-cover" />
+                </div>
+
+                <div className="col-span-2 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[1]} className="w-full h-full object-cover" />
+                </div>
+
+                <div className="col-span-1 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[2]} className="w-full h-full object-cover" />
+                </div>
+
+                <div className="col-span-6 rounded-2xl overflow-hidden shadow-lg mt-4">
+                  <img src={macroShots[3]} className="w-full h-[320px] object-cover" />
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-500 col-span-6">Loading details...</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="py-12 text-center text-gray-600">
+        © 2025 Royal Threads — Signature Series
       </footer>
     </div>
   );

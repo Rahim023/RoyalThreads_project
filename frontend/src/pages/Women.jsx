@@ -129,7 +129,7 @@ export default function Women() {
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.2 }}
-            className="text-white text-4xl md:text-6xl font-serifFancy font-bold mb-4"
+            className="text-white text-4xl md:text-6xl font-sansTrend font-bold mb-4"
           >
             Women’s Fashion Collection
           </motion.h1>
@@ -144,7 +144,7 @@ export default function Women() {
         </div>
       </div>
 
-      <div className="bg-gradient-to-b from-brand-maroon to-brand-mist">
+      <div className="bg-gradient-to-b from-brand-mist to-brand-white">
         {/* Search + Filter */}
         <div className="px-6 md:px-20 py-8 flex flex-wrap justify-center gap-4 relative">
           <div className="relative flex-1 max-w-lg">
@@ -195,7 +195,7 @@ export default function Women() {
           </div>
         </div>
 
-        {/* Featured Products with BlurText & ShinyText */}
+        {/* Featured Section */}
         {featuredProducts.length > 0 && (
           <section
             ref={featuredRef}
@@ -216,7 +216,7 @@ export default function Women() {
               <ShinyText
                 text="Check out our trending collection from all categories"
                 speed={5}
-                className="text-3xl md:text-3xl font-script text-brand-cloudy"
+                className="text-3xl md:text-3xl font-fancy text-brand-cloudy"
               />
             </motion.div>
 
@@ -238,7 +238,9 @@ export default function Women() {
                         alt={product.title}
                         className="w-full h-64 object-cover rounded-lg mb-2 shadow-luxe"
                       />
-                      <h3 className="text-center font-semibold">{product.title}</h3>
+                      <h3 className="text-center font-sansTrend font-semibold">
+                        {product.title}
+                      </h3>
                     </Card>
                   ))}
                 </CardSwap>
@@ -250,7 +252,7 @@ export default function Women() {
 
       {/* Explore All Products */}
       <section className="py-12 px-6 md:px-20">
-        <h2 className="text-3xl md:text-4xl font-serifFancy font-bold text-brand-navy text-center mb-10">
+        <h2 className="text-3xl md:text-4xl font-sansTrend font-bold text-brand-navy text-center mb-10">
           Explore All Products
         </h2>
         <motion.div
@@ -259,7 +261,7 @@ export default function Women() {
         >
           {(searchQuery
             ? filteredProducts
-            : filteredProducts.slice(0, 12) // Show only 12 by default
+            : filteredProducts.slice(0, 12)
           ).map((product) => (
             <motion.div
               key={product._id}
@@ -275,26 +277,26 @@ export default function Women() {
 
       {/* Subscription */}
       <section className="bg-brand-navy text-brand-ivory py-16 text-center">
-        <h2 className="text-3xl md:text-4xl font-serifFancy font-bold mb-4">
+        <h2 className="text-3xl md:text-4xl font-sansTrend font-bold mb-4">
           Subscribe to Our Newsletter
         </h2>
-        <p className="text-lg mb-6">
+        <p className="text-lg mb-6 font-sansTrend">
           Get the latest updates and exclusive offers.
         </p>
         <form className="flex justify-center gap-3 flex-wrap">
           <input
             type="email"
             placeholder="Enter your email"
-            className="p-3 rounded-lg w-64 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold"
+            className="p-3 rounded-lg w-64 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold font-sansTrend"
           />
-          <button className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-semibold hover:bg-brand-ivory hover:text-brand-navy transition">
+          <button className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-sansTrend font-semibold hover:bg-brand-ivory hover:text-brand-navy transition">
             Subscribe
           </button>
         </form>
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-navy text-brand-ivory py-6 text-center mt-12">
+      <footer className="bg-brand-navy text-brand-ivory py-6 text-center mt-12 font-sansTrend">
         <p>© 2025 MyClothing. All rights reserved.</p>
       </footer>
     </div>

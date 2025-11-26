@@ -40,30 +40,36 @@ export default function Discover() {
           src="https://picsum.photos/1600/600?random=30"
           className="w-full h-[380px] md:h-[460px] object-cover rounded-3xl shadow-xl"
         />
+
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-10 text-6xl md:text-6xl font-semibold tracking-tight text-gray-900"
+          className="mt-10 text-6xl md:text-6xl font-sansTrend font-semibold tracking-tight text-gray-900"
         >
           Discover the <span className="text-brand-gold">Edit</span>
         </motion.h1>
-        <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg">
-          A curated showcase of stories, trends, and premium craftsmanship —  
+
+        <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg font-sansTrend">
+          A curated showcase of stories, trends, and premium craftsmanship —
           reimagined in a modern luxury format.
         </p>
       </section>
+
       <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* ⭐ SPOTLIGHT AUTO CARDS (Premium Side Section) */}
+      {/* ⭐ SPOTLIGHT AUTO CARDS */}
       <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-14 bg-gradient-to-b from-mist to-brand-white">
+        
         {/* LEFT TEXT */}
         <div className="flex-1 space-y-4">
           <h2 className="text-xl md:text-6xl font-fancy leading-tight">
             Premium <span className="text-brand-gold">Spotlight</span>
           </h2>
+
           <p className="text-gray-600 max-w-md font-sansTrend text-lg">
             Inspired by global runway trends and handcrafted traditions.
           </p>
+
           <div className="h-1 w-32 bg-brand-gold/40 rounded-full"></div>
         </div>
 
@@ -81,13 +87,14 @@ export default function Discover() {
               className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-white"
             >
               <img src={s.img} className="w-full h-full object-cover" />
-              <div className="absolute bottom-6 left-6 text-white text-2xl font-semibold drop-shadow-xl">
+              <div className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-xl">
                 {s.title}
               </div>
             </motion.div>
           ))}
         </div>
       </section>
+
       <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
 
       {/* ⭐ CURATED COLLECTIONS */}
@@ -100,14 +107,16 @@ export default function Discover() {
         >
           Curated <span className="text-brand-maroon">Selections</span>
         </motion.h3>
+
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="mt-2 text-gray-600 text-lg max-w-lg mx-auto"
+          className="mt-2 text-gray-600 text-lg max-w-lg mx-auto font-sansTrend"
         >
           Explore handpicked pieces showcasing the finest craftsmanship and trending styles.
         </motion.p>
+
         <div className="h-1 w-32 bg-brand-maroon/40 mb-12 mt-4 mx-auto rounded-full"></div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,7 +131,7 @@ export default function Discover() {
 
               <motion.div
                 whileHover={{ x: 5 }}
-                className="absolute bottom-6 left-6 text-white text-2xl font-medium drop-shadow-lg flex items-center gap-2"
+                className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-lg flex items-center gap-2"
               >
                 {c.t} <LucideArrowRight size={20} />
               </motion.div>
@@ -131,9 +140,9 @@ export default function Discover() {
         </div>
       </section>
 
-      {/* ⭐ CRAFT TIMELINE — PREMIUM */}
+      {/* ⭐ CRAFT TIMELINE */}
       <section className="px-6 md:px-20 pb-24">
-        <h3 className="text-3xl font-semibold mb-12">Behind the Craft</h3>
+        <h3 className="text-3xl font-sansTrend font-semibold mb-12">Behind the Craft</h3>
 
         <div className="space-y-12">
           {[
@@ -149,20 +158,20 @@ export default function Discover() {
               transition={{ duration: 0.5 }}
               className="flex items-center gap-6"
             >
-              <div className="h-16 w-16 rounded-full bg-brand-gold/30 flex items-center justify-center text-xl font-semibold text-brand-navy">
+              <div className="h-16 w-16 rounded-full bg-brand-gold/30 flex items-center justify-center text-xl font-sansTrend font-semibold text-brand-navy">
                 {i + 1}
               </div>
 
               <div>
-                <h4 className="text-xl font-semibold">{title}</h4>
-                <p className="text-gray-600 mt-1">{desc}</p>
+                <h4 className="text-xl font-sansTrend font-semibold">{title}</h4>
+                <p className="text-gray-600 mt-1 font-sansTrend">{desc}</p>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <footer className="py-12 text-center text-gray-600">
+      <footer className="py-12 text-center text-gray-600 font-sansTrend">
         © 2025 MyClothing — Crafted With Precision
       </footer>
     </div>

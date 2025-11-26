@@ -8,6 +8,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import collectionRoutes from "./routes/collectionRoutes.js";
 import productRoutes from "./routes/productsRoutes.js";
+import SignatureRoutes from "./routes/SignatureRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/collections", collectionRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/signatures", SignatureRoutes);
 
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
