@@ -1,81 +1,150 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
 import Header from "../components/Header";
-import { useCart } from "./CartContext";   // ✅ Cart Context
+import { useCart } from "./CartContext";         // ✅ keep your path
 import { useWishlist } from "./WishlistContext"; // ✅ Wishlist Context
-import { FaHeart } from "react-icons/fa"; // ✅ Heart Icon
+import { FaHeart } from "react-icons/fa";       // ✅ Heart Icon
 
 export default function Signature() {
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
 
-  const products = [
-    { id: 1, title: "Royal Designer Suit", price: 799, img: "/assets/images/signature_suit.jpg" },
-    { id: 2, title: "Luxury Evening Gown", price: 899, img: "/assets/images/signature_gown.jpg" },
-    { id: 3, title: "Premium Saree", price: 699, img: "/assets/images/signature_saree.jpg" },
-    { id: 4, title: "Exclusive Sherwani", price: 999, img: "/assets/images/signature_sherwani.jpg" },
+  const [signatureProducts, setSignatureProducts] = useState([]);
+  const [currentHero, setCurrentHero] = useState(0);
+
+  const BASE_URL = "http://localhost:5000/api";
+
+  // 🔹 FIXED AWS HERO IMAGES FOR SIGNATURE SECTION
+  const heroImages = [
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/signature+homepage/signature_1.webp",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/signature+homepage/signature_2.avif",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/signature+homepage/signature_3.webp",
   ];
 
+  // 🔹 Hero slideshow (same as Men)
+  useEffect(() => {
+    if (!heroImages.length) return;
+    const interval = setInterval(() => {
+      setCurrentHero((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
+  // 🔹 Fetch Signature products from backend
+  useEffect(() => {
+    const fetchSignature = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/products`);
+        const sigItems = res.data.filter((p) => p.Signature === true);
+        setSignatureProducts(sigItems);
+      } catch (err) {
+        console.error("Error fetching signature products:", err);
+      }
+    };
+    fetchSignature();
+  }, []);
+
+  // 🔹 Normalize product for cart / wishlist
+  const makeCartItem = (p) => ({
+    id: p._id,
+    title: p.title || p.name,
+    price: p.price,
+    img: p.img || p.image,
+  });
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-brand-mist font-sansTrend">
       {/* 🔹 Global Header */}
       <Header />
 
-      {/* 🔹 Hero Section */}
-      <section className="py-20 text-center bg-gradient-to-b from-brand-gold/20 to-white">
-        <h1 className="text-5xl md:text-6xl font-serif font-bold text-brand-navy mb-4">
-          The Signature Collection
-        </h1>
-        <p className="text-lg text-brand-charcoal/80 max-w-2xl mx-auto">
-          Handpicked luxury pieces that define sophistication and timeless elegance.
-        </p>
+      {/* 🔹 Hero Section (AWS slideshow) */}
+      <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden">
+        {heroImages.map((img, idx) => (
+          <motion.img
+            key={idx}
+            src={img}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: currentHero === idx ? 1 : 0 }}
+            transition={{ duration: 1.2 }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ))}
+
+        <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-4">
+          <motion.h1
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1.2 }}
+            className="text-white text-4xl md:text-6xl font-bold mb-4"
+          >
+            The Signature Collection
+          </motion.h1>
+          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
+            Handpicked luxury Blazers, kurties, dupatta and gowns that define sophistication and
+            timeless elegance.
+          </p>
+        </div>
       </section>
 
       {/* 🔹 Product Grid */}
       <section className="px-6 md:px-20 py-16 bg-brand-mist flex-1">
-        <h2 className="text-3xl font-bold text-center text-brand-navy mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-brand-navy mb-10">
           Exclusive Signature Styles
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl2 shadow-luxe overflow-hidden hover:scale-105 transition-transform duration-300"
-            >
-              {/* Product Image */}
-              <img
-                src={item.img}
-                alt={item.title}
-                className="w-full h-64 object-cover"
-              />
+        {signatureProducts.length === 0 ? (
+          <p className="text-center text-brand-charcoal/80">
+            Loading signature pieces...
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {signatureProducts.map((item) => {
+              const img = item.img || item.image;
+              const title = item.title || item.name;
+              return (
+                <div
+                  key={item._id}
+                  className="bg-white rounded-2xl shadow-luxe overflow-hidden hover:scale-105 transition-transform duration-300"
+                >
+                  {/* Product Image */}
+                  <img
+                    src={img}
+                    alt={title}
+                    className="w-full h-64 object-cover"
+                  />
 
-              {/* Product Info */}
-              <div className="p-4 text-center">
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-brand-gold font-bold mt-2">${item.price}.00</p>
+                  {/* Product Info */}
+                  <div className="p-4 text-center">
+                    <h3 className="font-semibold text-lg">{title}</h3>
+                    <p className="text-brand-gold font-bold mt-2">
+                      ₹{item.price}
+                    </p>
 
-                {/* ✅ Buttons Row */}
-                <div className="flex justify-center gap-3 mt-4">
-                  {/* 🛒 Add to Cart */}
-                  <button
-                    onClick={() => addToCart(item)}
-                    className="flex-1 py-2 px-4 rounded-lg bg-brand-navy text-white hover:bg-brand-gold hover:text-brand-charcoal transition-colors"
-                  >
-                    Add to Cart
-                  </button>
+                    {/* ✅ Buttons Row */}
+                    <div className="flex justify-center gap-3 mt-4">
+                      {/* 🛒 Add to Cart */}
+                      <button
+                        onClick={() => addToCart(makeCartItem(item))}
+                        className="flex-1 py-2 px-4 rounded-lg bg-brand-navy text-white hover:bg-brand-gold hover:text-brand-charcoal transition-colors"
+                      >
+                        Add to Cart
+                      </button>
 
-                  {/* ❤️ Add to Wishlist */}
-                  <button
-                    onClick={() => addToWishlist(item)}
-                    className="px-4 py-2 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition-colors"
-                  >
-                    <FaHeart />
-                  </button>
+                      {/* ❤️ Add to Wishlist */}
+                      <button
+                        onClick={() => addToWishlist(makeCartItem(item))}
+                        className="px-4 py-2 rounded-lg border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition-colors"
+                      >
+                        <FaHeart />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* 🔹 Footer */}
