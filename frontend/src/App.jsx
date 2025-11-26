@@ -10,6 +10,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 // 🔹 Pages
+import SignatureSeries from "./pages/Signature";
+import SignatureProductPage from "./pages/SignatureProductPage";
 import Home from "./pages/Home";
 import Men from "./pages/Men";
 import Women from "./pages/Women";
@@ -73,6 +75,9 @@ export default function App() {
             <Route path="/category/:name" element={<CategoryPage />} />
             <Route path="/accessories" element={<Accessories />} />
             <Route path="/jewelry" element={<Jewelry />} />
+            {/* 🔹 Signature Series */}
+            <Route path="/signature-series" element={<SignatureSeries />} />
+            <Route path="/signature/:slug" element={<SignatureProductPage />} />
 
             {/* 🔹 Catch-all 404 */}
             <Route

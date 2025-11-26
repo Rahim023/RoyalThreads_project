@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function SignatureSeries() {
   const [products, setProducts] = useState([]);
@@ -10,37 +11,39 @@ export default function SignatureSeries() {
   const [spotlight, setSpotlight] = useState([]);
   const [heroImg, setHeroImg] = useState("");
   const [splitLeft, setSplitLeft] = useState("");
+  const navigate = useNavigate();
 
   // fetch from backend
   useEffect(() => {
     fetch("http://localhost:5000/api/signatures")
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data);
+        setProducts(data || []);
 
-        // take first two products for hero + split
-        if (data.length > 0) {
-          setHeroImg(data[0].images[0]);
-          setSplitLeft(data[1]?.images[0] || data[0].images[0]);
+        if (Array.isArray(data) && data.length > 0) {
+          setHeroImg(data[0].images?.[0] || "");
+          setSplitLeft(data[1]?.images?.[0] || data[0].images?.[0] || "");
 
-          // spotlight items simplified
           setSpotlight(
             data.slice(0, 3).map((p) => ({
-              id: p.id,
+              id: p._id || p.id,
               title: p.title,
-              img: p.images[0]
+              img: p.images?.[0] || ""
             }))
           );
 
-          // macro shots from different products
+          // macro shots from different products (DB)
           const collected = [];
           data.forEach((item) => {
-            if (item.macroShots && item.macroShots.length > 0) {
+            if (Array.isArray(item.macroShots) && item.macroShots.length) {
               collected.push(...item.macroShots);
             }
           });
-          setMacroShots(collected.slice(0, 4)); // first 4 macro images
+          setMacroShots(collected.slice(0, 4));
         }
+      })
+      .catch((err) => {
+        console.error("Failed to load signatures", err);
       });
   }, []);
 
@@ -59,10 +62,8 @@ export default function SignatureSeries() {
     }
   }, [products.length]);
 
-  const prev = () =>
-    setCenterIndex((i) => (i - 1 + products.length) % products.length);
-  const next = () =>
-    setCenterIndex((i) => (i + 1) % products.length);
+  const prev = () => setCenterIndex((i) => (i - 1 + products.length) % products.length);
+  const next = () => setCenterIndex((i) => (i + 1) % products.length);
 
   return (
     <div className="min-h-screen bg-brand-mist font-inter">
@@ -188,7 +189,7 @@ export default function SignatureSeries() {
 
                     return (
                       <motion.div
-                        key={p.id}
+                        key={p._id || p.id}
                         layout
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -200,7 +201,7 @@ export default function SignatureSeries() {
                         }}
                       >
                         <img
-                          src={p.images[0]}
+                          src={p.images?.[0] || "https://picsum.photos/900/900?random=11"}
                           className={`w-full h-[360px] object-cover ${
                             isCenter ? "" : "filter grayscale-10"
                           }`}
@@ -220,9 +221,13 @@ export default function SignatureSeries() {
                               <div className="text-sm text-gray-400">
                                 Limited
                               </div>
-                              <div className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold/30 text-brand-gold font-medium">
-                                View Piece <ArrowRight size={14} />
-                              </div>
+                              <button
+  onClick={() => navigate(`/signature/${p.slug}`)}
+  className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
+>
+  View Piece
+</button>
+
                             </div>
                           </div>
                         </div>
