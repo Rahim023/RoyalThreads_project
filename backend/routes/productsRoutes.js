@@ -1,12 +1,16 @@
 import express from "express";
-import { getAllProducts, getTrendingProducts } from "../controllers/productController.js";
+import { 
+  getAllProducts, 
+  getTrendingProducts,
+  getProductById
+} from "../controllers/productController.js";
 
 const router = express.Router();
 
-// GET all products with optional boolean query filters
 router.get("/", getAllProducts);
-
-// GET trending products
 router.get("/trending", getTrendingProducts);
+
+// 🔥 ADD THIS
+router.get("/:id", getProductById);
 
 export default router;

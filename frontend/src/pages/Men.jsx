@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
@@ -17,9 +17,9 @@ export default function Men() {
   const navigate = useNavigate();
 
   const heroImages = [
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hero.jpg",
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hero2.jpg",
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hero3.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hmpage1.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hmpage2.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hmpage3.jpg",
   ];
 
   // Hero carousel animation
@@ -28,7 +28,7 @@ export default function Men() {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages.length]);
 
   // Fetch Men products
   useEffect(() => {
@@ -50,7 +50,8 @@ export default function Men() {
     let filtered = products.filter(
       (p) =>
         p.title.toLowerCase().includes(query.toLowerCase()) ||
-        (p.description && p.description.toLowerCase().includes(query.toLowerCase()))
+        (p.description &&
+          p.description.toLowerCase().includes(query.toLowerCase()))
     );
 
     if (keyword && keyword !== "All") {
@@ -58,7 +59,8 @@ export default function Men() {
       filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(lowerKeyword) ||
-          (p.description && p.description.toLowerCase().includes(lowerKeyword))
+          (p.description &&
+            p.description.toLowerCase().includes(lowerKeyword))
       );
     }
 
@@ -76,7 +78,38 @@ export default function Men() {
     applyFilter(searchQuery, category);
   };
 
+  // Base trending list from DB flag
   const trendingProducts = products.filter((p) => p.trending);
+
+  // Ensure we always have up to 4 items for the slider
+  const sliderBase = useMemo(() => {
+    // start with trending ones
+    const base = [...trendingProducts];
+
+    // if less than 4, fill from non-trending men products
+    if (base.length < 4) {
+      const extras = products.filter((p) => !p.trending);
+      for (const p of extras) {
+        if (base.length >= 4) break;
+        // avoid accidental duplicates
+        if (!base.find((b) => b._id === p._id)) {
+          base.push(p);
+        }
+      }
+    }
+
+    // limit to 4 max
+    return base.slice(0, 4);
+  }, [trendingProducts, products]);
+
+  // create a long strip: repeat sliderBase list 6 times (for smooth loop)
+  const repeatedTrending = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < 6; i += 1) {
+      arr.push(...sliderBase);
+    }
+    return arr;
+  }, [sliderBase]);
 
   return (
     <div className="min-h-screen font-sansTrend bg-brand-mist">
@@ -112,7 +145,9 @@ export default function Men() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-6 py-3 rounded-2xl bg-brand-gold text-brand-navy font-semibold hover:bg-brand-ivory hover:text-brand-navy transition"
-            onClick={() => window.scrollTo({ top: 500, behavior: "smooth" })}
+            onClick={() =>
+              window.scrollTo({ top: 500, behavior: "smooth" })
+            }
           >
             Explore Now
           </motion.button>
@@ -145,8 +180,8 @@ export default function Men() {
         </div>
       </section>
 
-      {/* Trending Section */}
-      {trendingProducts.length > 0 && (
+      {/* Trending Section – continuous looping marquee */}
+      {sliderBase.length > 0 && (
         <section className="py-8 px-6 md:px-20">
           <BlurText
             text="Trending Now"
@@ -155,20 +190,20 @@ export default function Men() {
             delay={100}
             className="text-5xl md:text-6xl font-fancy font-bold text-brand-navy mb-8 justify-center flex"
           />
+
           <div
-            className="relative"
+            className="relative overflow-hidden"
             onMouseEnter={(e) => {
-              e.currentTarget.firstChild.style.animationPlayState = "paused";
+              const track = e.currentTarget.querySelector(".trending-track");
+              if (track) track.style.animationPlayState = "paused";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.firstChild.style.animationPlayState = "running";
+              const track = e.currentTarget.querySelector(".trending-track");
+              if (track) track.style.animationPlayState = "running";
             }}
           >
-            <div
-              className="flex gap-6 whitespace-nowrap animate-scroll"
-              style={{ animation: "scroll 12s linear infinite" }}
-            >
-              {[...trendingProducts, ...trendingProducts].map((p, i) => (
+            <div className="flex gap-6 whitespace-nowrap trending-track">
+              {repeatedTrending.map((p, i) => (
                 <div key={i} className="min-w-[250px] flex-shrink-0">
                   <ProductCardMen product={p} minimal={true} />
                 </div>
@@ -195,15 +230,22 @@ export default function Men() {
 
       {/* Footer */}
       <footer className="bg-brand-navy text-brand-ivory py-8 text-center mt-12">
-        <p className="font-body text-sm">© 2025 MyClothing. All rights reserved.</p>
+        <p className="font-body text-sm">
+          © 2025 MyClothing. All rights reserved.
+        </p>
       </footer>
 
       {/* CSS for scrolling */}
       <style>
         {`
-          @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+          .trending-track {
+            width: max-content;
+            animation: trending-marquee 25s linear infinite;
+          }
+
+          @keyframes trending-marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-16.66%); } /* 1 / 6 of strip width */
           }
         `}
       </style>
