@@ -5,42 +5,49 @@ import Header from "../components/Header";
 import { LucideArrowRight } from "lucide-react";
 
 export default function Discover() {
+  const [spotlight, setSpotlight] = useState([]);
+  const [tiles, setTiles] = useState([]);
   const [autoIndex, setAutoIndex] = useState(0);
-  const spotlight = [
-    { id: 1, title: "Signature Embroidery", img: "https://picsum.photos/600?random=11" },
-    { id: 2, title: "Royal Fabrics", img: "https://picsum.photos/600?random=12" },
-    { id: 3, title: "Modern Silhouettes", img: "https://picsum.photos/600?random=13" },
-    { id: 4, title: "Crafted Tailoring", img: "https://picsum.photos/600?random=14" },
-  ];
 
+  // Fetch data from backend
   useEffect(() => {
-    const t = setInterval(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/discover");
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const data = await res.json();
+        setSpotlight(data.spotlight || []);
+        setTiles(data.tiles || []);
+      } catch (err) {
+        console.error("Error fetching discover data:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Auto slide spotlight cards
+  useEffect(() => {
+    if (spotlight.length === 0) return;
+    const interval = setInterval(() => {
       setAutoIndex((i) => (i + 1) % spotlight.length);
     }, 2500);
-    return () => clearInterval(t);
-  }, []);
+    return () => clearInterval(interval);
+  }, [spotlight]);
 
   const { scrollY } = useScroll();
   const parallaxY = useTransform(scrollY, [0, 300], [0, -60]);
-
-  const tiles = [
-    { t: "Royal Craft", img: "https://picsum.photos/700?random=21" },
-    { t: "Trending Edits", img: "https://picsum.photos/700?random=22" },
-    { t: "Runway Notes", img: "https://picsum.photos/700?random=23" },
-  ];
 
   return (
     <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
-      {/* ⭐ HERO SECTION WITH PARALLAX */}
+      {/* HERO SECTION WITH PARALLAX */}
       <section className="relative pt-2 pb-20 md:px-2 text-center">
         <motion.img
           style={{ y: parallaxY }}
           src="https://picsum.photos/1600/600?random=30"
           className="w-full h-[380px] md:h-[460px] object-cover rounded-3xl shadow-xl"
         />
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -48,7 +55,6 @@ export default function Discover() {
         >
           Discover the <span className="text-brand-gold">Edit</span>
         </motion.h1>
-
         <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg font-sansTrend">
           A curated showcase of stories, trends, and premium craftsmanship —
           reimagined in a modern luxury format.
@@ -57,19 +63,16 @@ export default function Discover() {
 
       <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* ⭐ SPOTLIGHT AUTO CARDS */}
+      {/* SPOTLIGHT AUTO SLIDER */}
       <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-14 bg-gradient-to-b from-mist to-brand-white">
-        
         {/* LEFT TEXT */}
         <div className="flex-1 space-y-4">
           <h2 className="text-xl md:text-6xl font-fancy leading-tight">
             Premium <span className="text-brand-gold">Spotlight</span>
           </h2>
-
           <p className="text-gray-600 max-w-md font-sansTrend text-lg">
             Inspired by global runway trends and handcrafted traditions.
           </p>
-
           <div className="h-1 w-32 bg-brand-gold/40 rounded-full"></div>
         </div>
 
@@ -97,7 +100,7 @@ export default function Discover() {
 
       <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
 
-      {/* ⭐ CURATED COLLECTIONS */}
+      {/* CURATED COLLECTIONS */}
       <section className="px-6 md:px-20 pb-24 text-center">
         <motion.h3
           initial={{ opacity: 0, y: 20 }}
@@ -107,7 +110,6 @@ export default function Discover() {
         >
           Curated <span className="text-brand-maroon">Selections</span>
         </motion.h3>
-
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -116,34 +118,31 @@ export default function Discover() {
         >
           Explore handpicked pieces showcasing the finest craftsmanship and trending styles.
         </motion.p>
-
         <div className="h-1 w-32 bg-brand-maroon/40 mb-12 mt-4 mx-auto rounded-full"></div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {tiles.map((c, i) => (
+          {tiles.map((c) => (
             <motion.div
-              key={i}
+              key={c.id}
               whileHover={{ scale: 1.05 }}
               className="relative overflow-hidden rounded-3xl shadow-xl bg-white/50 backdrop-blur-lg cursor-pointer"
             >
               <img src={c.img} className="h-72 w-full object-cover" />
               <div className="absolute inset-0 bg-black/20"></div>
-
               <motion.div
                 whileHover={{ x: 5 }}
                 className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-lg flex items-center gap-2"
               >
-                {c.t} <LucideArrowRight size={20} />
+                {c.title} <LucideArrowRight size={20} />
               </motion.div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* ⭐ CRAFT TIMELINE */}
+      {/* CRAFT TIMELINE */}
       <section className="px-6 md:px-20 pb-24">
         <h3 className="text-3xl font-sansTrend font-semibold mb-12">Behind the Craft</h3>
-
         <div className="space-y-12">
           {[
             ["Design", "Where imagination meets fabric."],
@@ -161,7 +160,6 @@ export default function Discover() {
               <div className="h-16 w-16 rounded-full bg-brand-gold/30 flex items-center justify-center text-xl font-sansTrend font-semibold text-brand-navy">
                 {i + 1}
               </div>
-
               <div>
                 <h4 className="text-xl font-sansTrend font-semibold">{title}</h4>
                 <p className="text-gray-600 mt-1 font-sansTrend">{desc}</p>
