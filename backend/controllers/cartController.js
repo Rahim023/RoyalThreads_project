@@ -1,5 +1,6 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Products.js";
+import Signature from "../models/Signature.js";
 
 /**
  * Helper: Format cart items for frontend
@@ -43,7 +44,15 @@ export const addToCart = async (req, res) => {
     }
 
     // Find product by string _id using native query to avoid ObjectId casting
-    const product = await Product.collection.findOne({ _id: String(productId) });
+    let product = await Product.collection.findOne({ _id: String(productId) });
+    let source = "products";
+
+    // If not found in products, try signatures collection (signature series items)
+    if (!product) {
+      product = await Signature.collection.findOne({ _id: String(productId) });
+      source = "signatures";
+    }
+
     if (!product) {
       console.error("❌ [addToCart] Product not found for ID:", productId);
       return res.status(404).json({ 
@@ -52,7 +61,7 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    console.log("✅ [addToCart] Product found:", product.title);
+    console.log(`✅ [addToCart] Product found in ${source} collection:`, product.title || product.title);
 
     // Get or create user's cart
     let cart = await Cart.findOne({ user: userId });
@@ -73,11 +82,13 @@ export const addToCart = async (req, res) => {
     } else {
       // Add new product to cart with string _id
       const newProductId = String(product._id);
+      // signature items may store images in `images` array; products may have `img`
+      const image = product.img || product.image || (product.images && product.images[0]) || '';
       cart.items.push({
         id: newProductId,
         title: product.title,
         price: product.price,
-        img: product.img,
+        img: image,
         quantity: 1,
       });
       console.log("✅ [addToCart] Added product to cart:", product.title);
