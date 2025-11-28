@@ -1,3 +1,9 @@
+const formatPrice = (price) =>
+  new Intl.NumberFormat("en-CA", {
+    style: "currency",
+    currency: "CAD",
+  }).format(price ?? 0);
+
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
