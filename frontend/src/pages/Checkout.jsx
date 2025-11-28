@@ -7,27 +7,30 @@ export default function Checkout() {
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
-  // ✅ Calculate total
+  // ✅ Calculate total cost
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handlePlaceOrder = () => {
     if (cart.length === 0) return;
 
+    // Create a temporary order ID
+    const orderId = "ORD-" + Date.now();
+
     const newOrder = {
-      id: "ORD-" + Date.now(), // unique order ID
+      id: orderId,
       items: cart,
       total,
-      status: "Processing", // default status
+      status: "Awaiting Payment",   // updated status
     };
 
-    // ✅ Save order in localStorage
-    localStorage.setItem("lastOrder", JSON.stringify(newOrder));
+    // Save order in localStorage (temporary until payment)
+    localStorage.setItem("pendingOrder", JSON.stringify(newOrder));
 
-    // ✅ Clear cart after placing order
+    // Clear the cart
     clearCart();
 
-    // ✅ Redirect to order status page
-    navigate("/order-status");
+    // Redirect user to the payment method selection page
+    navigate(`/payment/${orderId}`);
   };
 
   return (
@@ -63,7 +66,7 @@ export default function Checkout() {
 
             <h3 className="text-lg font-bold mt-6">Total: ${total}.00</h3>
 
-            {/* 🔹 Confirm Order Button */}
+            {/* 🔹 Place Order Button */}
             <button
               onClick={handlePlaceOrder}
               className="mt-6 w-full py-3 bg-brand-gold text-brand-navy font-semibold rounded-lg shadow hover:bg-brand-ivory hover:text-brand-navy transition"
