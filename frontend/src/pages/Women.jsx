@@ -21,13 +21,15 @@ export default function Women() {
   const BASE_URL = "http://localhost:5000/api";
   const filterRef = useRef(null);
 
+  // 👉 NEW: Ref for Explore All section
+  const exploreRef = useRef(null);
+
   const heroImages = [
     "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage1.jpg",
     "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage2.webp",
     "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/women_homepage/women_homepage3.jpg",
   ];
 
-  // Hero carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
@@ -35,7 +37,6 @@ export default function Women() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -52,7 +53,6 @@ export default function Women() {
     fetchProducts();
   }, []);
 
-  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -64,14 +64,26 @@ export default function Women() {
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Search filter
+  // 👉 UPDATED SEARCH: Enter/Click scrolls to explore section
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
     applyFilters(query, filterCategory);
   };
 
-  // Apply filter dynamically (boolean category fields)
+  const triggerSearchScroll = () => {
+    if (exploreRef.current) {
+      exploreRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleSearchEnter = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      triggerSearchScroll();
+    }
+  };
+
   const applyFilters = (query, category) => {
     let filtered = products.filter(
       (p) =>
@@ -85,17 +97,14 @@ export default function Women() {
     setFilteredProducts(filtered);
   };
 
-  // Handle filter click
   const handleFilterClick = (category) => {
     setFilterCategory(category);
     applyFilters(searchQuery, category);
     setFilterOpen(false);
   };
 
-  // Featured products are always trending, independent of filters
   const featuredProducts = products.filter((p) => p.trending).slice(0, 5);
 
-  // Scroll animation for featured section
   const featuredRef = useRef(null);
   const isInView = useInView(featuredRef, { margin: "-100px" });
   const featuredControls = useAnimation();
@@ -145,20 +154,28 @@ export default function Women() {
       </div>
 
       <div className="bg-gradient-to-b from-brand-mist to-brand-white">
-        {/* Search + Filter */}
+        
+        {/* 🔍 SEARCH + BUTTON UI UPDATED */}
         <div className="px-6 md:px-20 py-8 flex flex-wrap justify-center gap-4 relative">
-          <div className="relative flex-1 max-w-lg">
+          <div className="relative flex-1 max-w-lg flex">
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={handleSearch}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition pl-10"
+              onKeyDown={handleSearchEnter}
+              className="w-full p-3 rounded-l-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-navy transition pl-10"
             />
             <LucideSearch
               className="absolute left-3 top-3.5 text-gray-400"
               size={20}
             />
+            <button
+              onClick={triggerSearchScroll}
+              className="px-6 rounded-r-full bg-brand-gold text-brand-navy hover:bg-brand-ivory transition font-semibold"
+            >
+              Search
+            </button>
           </div>
 
           {/* Filter Dropdown */}
@@ -220,7 +237,6 @@ export default function Women() {
               />
             </motion.div>
 
-            {/* CardSwap */}
             <div className="flex-1 flex justify-end">
               <div className="card-swap-wrapper">
                 <CardSwap
@@ -251,7 +267,7 @@ export default function Women() {
       </div>
 
       {/* Explore All Products */}
-      <section className="py-12 px-6 md:px-20">
+      <section ref={exploreRef} className="py-12 px-6 md:px-20">
         <h2 className="text-3xl md:text-4xl font-sansTrend font-bold text-brand-navy text-center mb-10">
           Explore All Products
         </h2>
@@ -295,7 +311,6 @@ export default function Women() {
         </form>
       </section>
 
-      {/* Footer */}
       <footer className="bg-brand-navy text-brand-ivory py-6 text-center mt-12 font-sansTrend">
         <p>© 2025 MyClothing. All rights reserved.</p>
       </footer>

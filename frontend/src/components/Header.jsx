@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaHeart, FaShoppingCart, FaSearch, FaCommentDots, FaUser } from "react-icons/fa"; 
 import { useCart } from "../pages/CartContext"; 
 import { useWishlist } from "../pages/WishlistContext"; 
+import { useCurrency } from "../context/CurrencyContext";
 
 // ✅ IMPORT SUPPORT CHAT
 import SupportChat from "../components/SupportChat";
@@ -12,7 +13,7 @@ export default function Header() {
 
   // Chat window toggle
   const [showChat, setShowChat] = useState(false);
-
+  const { country, setCountry } = useCurrency();
   const { cart } = useCart();
   const { wishlist } = useWishlist();
   const itemCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -48,11 +49,15 @@ export default function Header() {
         <div className="flex justify-between items-center px-6 py-4">
 
           {/* Country Selector */}
-          <select className="border px-3 py-1.5 rounded-xl2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold">
-            <option>Ship to: Canada</option>
-            <option>Ship to: USA</option>
-            <option>Ship to: India</option>
-          </select>
+          <select
+  className="border px-3 py-1.5 rounded-xl2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
+  value={country}
+  onChange={(e) => setCountry(e.target.value)}
+>
+  <option value="Canada">Ship to: Canada</option>
+  <option value="USA">Ship to: USA</option>
+  <option value="India">Ship to: India</option>
+</select>
 
           {/* Logo */}
           <Link

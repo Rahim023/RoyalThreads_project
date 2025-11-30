@@ -11,7 +11,7 @@ export const WishlistProvider = ({ children }) => {
 
   const BASE_URL = "http://localhost:5000/api";
 
-  // 🔥 ALWAYS reads latest token
+  // Axios with token
   const axiosInstance = axios.create({ baseURL: BASE_URL });
   axiosInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
@@ -19,11 +19,28 @@ export const WishlistProvider = ({ children }) => {
     return config;
   });
 
-  const normalizeItem = (item) => ({
-    ...item,
-    id: item?.id?.toString ? item.id.toString() : item._id?.toString ? item._id.toString() : item.id || item._id,
-  });
+  // ⭐ Normalize FULL product details
+  const normalizeItem = (item) => {
+    const id =
+      item?.id?.toString?.() ||
+      item?._id?.toString?.() ||
+      item.id ||
+      item._id;
 
+    return {
+      id,
+      title: item.title || "Untitled Product",
+      img: item.img || item.images?.[0] || "",
+      price: item.price || 0,
+      description: item.description || "",
+      rating: item.rating || 4,
+      stock: item.stock || 10,
+      brand: item.brand || "Royal Threads",
+      ...item,
+    };
+  };
+
+  // ⭐ Fetch wishlist on load
   useEffect(() => {
     const fetchWishlist = async () => {
       const token = localStorage.getItem("token");
@@ -35,7 +52,8 @@ export const WishlistProvider = ({ children }) => {
 
       try {
         const res = await axiosInstance.get("/wishlist");
-        setWishlist((res.data.items || []).map(normalizeItem));
+        const items = res.data.items || [];
+        setWishlist(items.map((p) => normalizeItem(p)));
       } catch (err) {
         console.error("Wishlist fetch error:", err.response?.data || err);
       } finally {
@@ -46,49 +64,36 @@ export const WishlistProvider = ({ children }) => {
     fetchWishlist();
   }, []);
 
-  // ADD
+  // ⭐ Add product
   const addToWishlist = async (product) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
 
-    console.log("❤️ addToWishlist received product:", product);
-    console.log("   product.id:", product.id);
-    console.log("   product._id:", product._id);
-
     const productId = product.id || product._id;
-    if (!productId) {
-      console.error("❌ Product ID missing in addToWishlist:", product);
-      return alert("❌ Product ID missing");
-    }
-
-    console.log("✅ Extracted productId:", productId, "Type:", typeof productId);
+    if (!productId) return alert("Product ID missing");
 
     try {
-      // Send ONLY productId to backend
-      const payload = { productId: String(productId) };
-      console.log("📤 Sending payload to /wishlist/add:", JSON.stringify(payload));
+      const res = await axiosInstance.post("/wishlist/add", {
+        productId: String(productId),
+      });
 
-      const res = await axiosInstance.post("/wishlist/add", payload);
-      console.log("📥 Response from /wishlist/add:", res.data);
-
-      // Handle response structure
       const items = res.data.items || [];
-      setWishlist(items.map(normalizeItem));
-      console.log("✅ Wishlist updated with items:", items);
+      setWishlist(items.map((p) => normalizeItem(p)));
     } catch (err) {
-      console.error("❌ Wishlist add error:", err.response?.data || err.message);
-      alert("Failed to add to wishlist: " + (err.response?.data?.message || err.message));
+      console.error("Wishlist add error:", err.response?.data || err);
+      alert(
+        "Failed to add: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
-  // REMOVE
+  // ⭐ Remove product
   const removeFromWishlist = async (id) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Login required");
-
     try {
       const res = await axiosInstance.delete(`/wishlist/${id}`);
-      setWishlist((res.data.items || []).map(normalizeItem));
+      const items = res.data.items || [];
+      setWishlist(items.map((p) => normalizeItem(p)));
     } catch (err) {
       console.error("Wishlist remove error:", err.response?.data || err);
     }

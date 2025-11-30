@@ -9,6 +9,9 @@ import wishlistRoutes from "./routes/wishlistRoutes.js";
 import collectionRoutes from "./routes/collectionRoutes.js";
 import productRoutes from "./routes/productsRoutes.js";
 import SignatureRoutes from "./routes/SignatureRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import { protect } from "./middleware/authMiddleware.js";
+import shopRoutes from "./routes/shopRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -17,11 +20,14 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/shop", shopRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/wishlist", wishlistRoutes); 
 app.use("/api/collections", collectionRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/signatures", SignatureRoutes);
+app.use("/api/orders", orderRoutes);
 
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,

@@ -7,6 +7,9 @@ import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import { ArrowLeft } from "lucide-react";
 
+// ⭐ Currency Hook
+import { useCurrency } from "../context/CurrencyContext";
+
 export default function ProductPage() {
   const { id } = useParams(); 
   const navigate = useNavigate();
@@ -17,6 +20,8 @@ export default function ProductPage() {
 
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
+
+  const { convertPrice, country } = useCurrency();  // ⭐ Use currency hook
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -52,30 +57,54 @@ export default function ProductPage() {
     setRedirectTo(redirect);
     setShowPopup(true);
   };
+const handleAddToCart = () => {
+  addToCart({
+    id: product._id,
+    title: product.title,
+    price: product.price,
+    img: product.img,
+    quantity: qty,
+    size: selectedSize,
+  });
 
-  const handleAddToCart = () => {
-    addToCart({
-      id: product._id,
-      title: product.title,
-      price: product.price,
-      image: product.img,
-      size: selectedSize,
-      qty,
-    });
-    openPopup("Item added to cart", "/cart");
-  };
+  openPopup("Item added to cart", "/cart");
+};
 
-  const handleAddToWishlist = () => {
-    addToWishlist({
-      id: product._id,
-      title: product.title,
-      price: product.price,
-      image: product.img,
-    });
-    openPopup("Item added to wishlist", "/wishlist");
-  };
+const handleAddToWishlist = () => {
+  addToWishlist({
+    id: product._id,
+    title: product.title,
+    price: product.price,
+    img: product.img,
+    quantity: qty,         // ⭐ add quantity
+    size: selectedSize,    // ⭐ add size
+  });
 
-  const handleCheckout = () => navigate("/checkout");
+  openPopup("Item added to wishlist", "/wishlist");
+};
+
+
+const handleCheckout = () => {
+  addToCart({
+    id: product._id,
+    title: product.title,
+    price: product.price,
+    img: product.img,
+    quantity: qty,
+    size: selectedSize,
+  });
+
+  navigate("/checkout");
+};
+
+
+  // ⭐ Currency symbol based on selected country
+  const currencySymbol =
+    country === "Canada"
+      ? "CA$"
+      : country === "USA"
+      ? "US$"
+      : "₹";
 
   return (
     <div className="min-h-screen bg-brand-mist font-inter">
@@ -110,8 +139,9 @@ export default function ProductPage() {
 
           <h1 className="text-4xl font-fancy text-brand-navy">{product.title}</h1>
 
+          {/* ⭐ CONVERTED PRICE */}
           <div className="text-2xl font-semibold text-brand-gold">
-            ${product.price}
+            {currencySymbol} {convertPrice(product.price)}
           </div>
 
           <p className="text-gray-700 leading-relaxed">{product.description}</p>

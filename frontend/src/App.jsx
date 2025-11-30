@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // 🔹 Context Providers
 import { CartProvider } from "./pages/CartContext";
 import { WishlistProvider } from "./pages/WishlistContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
+
 
 // 🔹 Styles
 import "slick-carousel/slick/slick.css";
@@ -40,6 +42,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 
 export default function App() {
   return (
+    <CurrencyProvider>
     <CartProvider>
       <WishlistProvider>
         <Router>
@@ -111,5 +114,6 @@ export default function App() {
         </Router>
       </WishlistProvider>
     </CartProvider>
+    </CurrencyProvider>
   );
 }

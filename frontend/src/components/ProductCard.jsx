@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../pages/CartContext";
 import { useWishlist } from "../pages/WishlistContext";
 import PopupModal from "./Popupmodal";
+import { useCurrency } from "../context/CurrencyContext";
+
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ export default function ProductCard({ product }) {
   const [redirectTo, setRedirectTo] = useState("/");
 
   const productId = product?._id;
+  const { currency, convertPrice } = useCurrency();
+
 
   const openPopup = (msg, redirect) => {
     setPopupMessage(msg);
@@ -57,7 +61,12 @@ export default function ProductCard({ product }) {
           <p className="text-gray-600 mt-1 text-sm">{truncatedDesc}</p>
 
           <div className="mt-2 flex items-center justify-between">
-            <span className="font-bold text-gray-900 text-lg">₹{product.price}</span>
+            <span className="font-bold text-gray-900 text-lg">
+  {currency === "INR" && "₹"}
+  {currency === "CAD" && "CA$"}
+  {currency === "USD" && "US$"}
+  {convertPrice(product.price)}
+</span>
 
             <span className="flex items-center text-yellow-500 font-semibold">
               {Array.from({ length: 5 }, (_, i) => (

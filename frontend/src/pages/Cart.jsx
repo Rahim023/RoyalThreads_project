@@ -3,11 +3,25 @@ import Header from "../components/Header";
 import { useCart } from "./CartContext";
 import { Link } from "react-router-dom";
 
+// ⭐ Currency context import
+import { useCurrency } from "../context/CurrencyContext";
+
 export default function Cart() {
   const { cart, removeFromCart, clearCart } = useCart();
 
-  // ✅ Calculate total price
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const { convertPrice, country } = useCurrency();
+
+  // ⭐ Currency symbols
+  const currencySymbol =
+    country === "Canada" ? "CA$" :
+    country === "USA" ? "US$" :
+    "₹";
+
+  // ⭐ Total in converted amount (INR → CAD/USD/INR)
+  const totalConverted = cart.reduce(
+    (sum, item) => sum + Number(convertPrice(item.price)) * item.quantity,
+    0
+  ).toFixed(2);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -26,7 +40,8 @@ export default function Cart() {
           </p>
         ) : (
           <div className="max-w-4xl mx-auto bg-white shadow-luxe rounded-xl p-6">
-            {/* ✅ Cart Items */}
+
+            {/* ⭐ Cart Items */}
             {cart.map((item) => (
               <div
                 key={item.id}
@@ -40,8 +55,10 @@ export default function Cart() {
                   />
                   <div>
                     <h3 className="font-semibold text-lg">{item.title}</h3>
+
+                    {/* ⭐ Converted price display */}
                     <p className="text-brand-gold font-bold">
-                      ${item.price}.00 × {item.quantity}
+                      {currencySymbol} {convertPrice(item.price)} × {item.quantity}
                     </p>
                   </div>
                 </div>
@@ -56,9 +73,12 @@ export default function Cart() {
               </div>
             ))}
 
-            {/* ✅ Cart Summary */}
+            {/* ⭐ Cart Summary */}
             <div className="flex justify-between items-center mt-6">
-              <h2 className="text-xl font-bold">Total: ${total}.00</h2>
+              <h2 className="text-xl font-bold">
+                Total: {currencySymbol} {totalConverted}
+              </h2>
+
               <div className="flex gap-4">
                 <button
                   onClick={clearCart}

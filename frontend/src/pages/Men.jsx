@@ -13,6 +13,7 @@ export default function Men() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [currentHero, setCurrentHero] = useState(0);
+
   const BASE_URL = "http://localhost:5000/api";
   const navigate = useNavigate();
 
@@ -83,26 +84,22 @@ export default function Men() {
 
   // Ensure we always have up to 4 items for the slider
   const sliderBase = useMemo(() => {
-    // start with trending ones
     const base = [...trendingProducts];
 
-    // if less than 4, fill from non-trending men products
     if (base.length < 4) {
       const extras = products.filter((p) => !p.trending);
       for (const p of extras) {
         if (base.length >= 4) break;
-        // avoid accidental duplicates
         if (!base.find((b) => b._id === p._id)) {
           base.push(p);
         }
       }
     }
 
-    // limit to 4 max
     return base.slice(0, 4);
   }, [trendingProducts, products]);
 
-  // create a long strip: repeat sliderBase list 6 times (for smooth loop)
+  // create a long strip: repeat sliderBase list 6 times
   const repeatedTrending = useMemo(() => {
     const arr = [];
     for (let i = 0; i < 6; i += 1) {
@@ -245,7 +242,7 @@ export default function Men() {
 
           @keyframes trending-marquee {
             0%   { transform: translateX(0); }
-            100% { transform: translateX(-16.66%); } /* 1 / 6 of strip width */
+            100% { transform: translateX(-16.66%); }
           }
         `}
       </style>

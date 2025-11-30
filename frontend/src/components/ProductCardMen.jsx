@@ -5,6 +5,7 @@ import PopupModal from "./Popupmodal";
 import { useCart } from "../pages/CartContext";
 import { useWishlist } from "../pages/WishlistContext";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../context/CurrencyContext";
 
 export default function ProductCardMen({ product, minimal = false }) {
   const { addToCart } = useCart();
@@ -19,6 +20,14 @@ export default function ProductCardMen({ product, minimal = false }) {
 
   const productId = product?._id || product.id;
 
+  // ⭐ Currency hook
+  const { country, convertPrice } = useCurrency();
+
+  const currencySymbol =
+    country === "Canada" ? "CA$" :
+    country === "USA" ? "US$" :
+    "₹";
+
   const openPopup = (msg, redirect) => {
     setPopupMessage(msg);
     setRedirectTo(redirect);
@@ -30,17 +39,18 @@ export default function ProductCardMen({ product, minimal = false }) {
       ? product.description.substring(0, 80) + "..."
       : product.description;
 
+  const handleCardClick = () => {
+    if (!productId) return console.error("No product ID:", product);
+    navigate(`/product/${productId}`);
+  };
+
   return (
     <>
       {/* CARD */}
-
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0px 0px 25px #facc15" }}
         className="bg-white rounded-xl2 overflow-hidden cursor-pointer border border-brand-navy hover:shadow-[0_0_40px_15px_rgba(252,204,21,0.5)] transition relative"
-        onClick={() => {
-          if (!productId) return console.error("No product ID:", product);
-          navigate(`/product/${productId}`);
-        }}
+        onClick={handleCardClick}
       >
         <div className="w-full h-64 overflow-hidden border border-brand-navy shadow-lg">
           <img
@@ -73,15 +83,17 @@ export default function ProductCardMen({ product, minimal = false }) {
           )}
 
           <div className="mt-2 flex items-center justify-between">
+            {/* ⭐ Converted price with correct symbol */}
             <span className="font-bold text-gray-900 text-lg">
-              ₹{product.price}
+              {currencySymbol} {convertPrice(product.price)}
             </span>
+
             <span className="flex items-center text-yellow-500 font-semibold">
               {Array.from({ length: 5 }, (_, i) => (
                 <FaStar
                   key={i}
                   className={
-                    i < Math.round(product.rating)
+                    i < Math.round(product.rating || 0)
                       ? "text-yellow-400"
                       : "text-gray-300"
                   }
@@ -91,14 +103,20 @@ export default function ProductCardMen({ product, minimal = false }) {
           </div>
 
           {!minimal && (
-            <button className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-brand-gold to-brand-navy text-white font-semibold hover:from-brand-navy hover:to-brand-gold transition">
+            <button
+              className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-brand-gold to-brand-navy text-white font-semibold hover:from-brand-navy hover:to-brand-gold transition"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCardClick();
+              }}
+            >
               View Product
             </button>
           )}
         </div>
       </motion.div>
 
-      {/* ❗ Modal kept exactly the same — but user will not open it anymore */}
+      {/* Old modal kept, in case you still use it somewhere */}
       {showModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -145,7 +163,7 @@ export default function ProductCardMen({ product, minimal = false }) {
                   <FaStar
                     key={i}
                     className={
-                      i < Math.round(product.rating)
+                      i < Math.round(product.rating || 0)
                         ? "text-yellow-400"
                         : "text-gray-300"
                     }
@@ -192,3 +210,4 @@ export default function ProductCardMen({ product, minimal = false }) {
     </>
   );
 }
+ 

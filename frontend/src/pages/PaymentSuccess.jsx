@@ -1,52 +1,77 @@
 // src/pages/PaymentSuccess.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Header from "../components/Header";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../context/CurrencyContext";
 
 export default function PaymentSuccess() {
-  const { orderId } = useParams();
   const navigate = useNavigate();
-
-  const [order, setOrder] = useState(null);
+  const { convertPrice } = useCurrency();
 
   useEffect(() => {
-    // Load stored order list
-    const orders = JSON.parse(localStorage.getItem("allOrders")) || [];
+    async function finalizeOrder() {
+      const pending = JSON.parse(localStorage.getItem("pendingOrder"));
+      if (!pending) return;
 
-    const found = orders.find((o) => o.id === orderId);
-    setOrder(found || null);
-  }, [orderId]);
+      // ⭐ Create a final order record
+      const finalOrder = {
+        id: pending.id,
+        items: pending.items,
+        total: pending.total,
+        status: "Ordered",
+        createdAt: new Date().toLocaleString(),
+      };
 
-  const handleViewOrders = () => {
-    navigate(`/order-status/${orderId}`);
-  };
+      // ⭐ SAVE FINAL ORDER
+      localStorage.setItem("lastOrder", JSON.stringify(finalOrder));
+
+      // ⭐ REMOVE pending order AFTER saving final
+      localStorage.removeItem("pendingOrder");
+
+      // (Optional backend save)
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          await fetch("http://localhost:5000/api/orders", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              items: finalOrder.items,
+              totalInINR: finalOrder.total,
+              paymentMethod: "card",
+            }),
+          });
+        } catch (err) {
+          console.error("Order save error:", err);
+        }
+      }
+    }
+
+    finalizeOrder();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-brand-mist">
+    <div className="min-h-screen bg-brand-mist flex flex-col">
       <Header />
 
-      <div className="py-20 px-6 flex justify-center">
-        <div className="bg-white shadow-xl rounded-2xl p-10 max-w-2xl w-full text-center">
-          <h1 className="text-4xl font-bold text-brand-navy flex justify-center gap-2">
-            🎉 Payment Successful!
-          </h1>
+      <section className="text-center py-24">
+        <h1 className="text-4xl font-bold text-brand-navy">
+          Payment Successful 🎉
+        </h1>
+        <p className="mt-4 text-lg text-brand-charcoal">
+          Thank you for your purchase!
+        </p>
 
-          <p className="mt-4 text-gray-700">
-            Your payment has been processed for order:
-          </p>
-
-          <p className="mt-2 text-2xl font-bold text-brand-gold">
-            #{orderId}
-          </p>
-
-          <button
-            onClick={handleViewOrders}
-            className="mt-8 px-6 py-3 bg-brand-navy text-white rounded-lg text-lg font-semibold hover:bg-brand-gold hover:text-brand-navy transition"
-          >
-            View My Orders
-          </button>
-        </div>
-      </div>
+        <button
+          onClick={() => navigate("/orders")}
+          className="mt-8 px-6 py-3 bg-brand-gold text-brand-navy rounded-lg font-semibold shadow hover:bg-brand-ivory transition"
+        >
+          View Your Order
+        </button>
+      </section>
     </div>
   );
 }

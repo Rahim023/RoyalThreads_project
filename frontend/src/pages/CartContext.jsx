@@ -40,39 +40,34 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   // ADD TO CART
-  const addToCart = async (product) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Login required");
+ // ADD TO CART
+const addToCart = async (product) => {
+  const token = localStorage.getItem("token");
+  if (!token) return alert("Login required");
 
-    console.log("🛒 addToCart received product:", product);
-    console.log("   product.id:", product.id);
-    console.log("   product._id:", product._id);
+  const productId = product.id || product._id;
 
-    const productId = product.id || product._id;
-    if (!productId) {
-      console.error("❌ Product ID missing in addToCart:", product);
-      return alert("❌ Product ID missing");
-    }
+  try {
+    const payload = {
+      productId: String(productId),
+      title: product.title,
+      price: Number(product.price),
+      img: product.img,
+      quantity: Number(product.quantity),
+      size: product.size,
+    };
 
-    console.log("✅ Extracted productId:", productId, "Type:", typeof productId);
+    console.log("📤 Sending payload to /cart/add:", payload);
 
-    try {
-      // Send ONLY productId to backend
-      const payload = { productId: String(productId) };
-      console.log("📤 Sending payload to /cart/add:", JSON.stringify(payload));
+    const res = await axiosInstance.post("/cart/add", payload);
 
-      const res = await axiosInstance.post("/cart/add", payload);
-      console.log("📥 Response from /cart/add:", res.data);
-
-      // Handle response structure
-      const items = res.data.items || [];
-      setCart(items.map(normalizeItem));
-      console.log("✅ Cart updated with items:", items);
-    } catch (err) {
-      console.error("❌ Add to cart failed:", err.response?.data || err.message);
-      alert("Failed to add to cart: " + (err.response?.data?.message || err.message));
-    }
-  };
+    const items = res.data.items || [];
+    setCart(items.map(normalizeItem));
+  } catch (err) {
+    console.error("❌ Add to cart failed:", err.response?.data || err.message);
+    alert("Failed to add to cart: " + (err.response?.data?.message || err.message));
+  }
+};
 
   // REMOVE
   const removeFromCart = async (id) => {
@@ -80,7 +75,7 @@ export const CartProvider = ({ children }) => {
     if (!token) return alert("Login required");
 
     try {
-      const res = await axiosInstance.delete(`/cart/${id}`);
+      const res = await axiosInstance.delete(`/cart/${String(id)}`);
       setCart((res.data.items || []).map(normalizeItem));
     } catch (err) {
       console.error("Remove error:", err.response?.data || err);

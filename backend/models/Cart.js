@@ -4,11 +4,12 @@ const cartSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
   items: [
     {
-      id: { type: String, required: true },  // Changed to String to support UUID and MongoDB ObjectId as strings
+      productId: { type: String, required: true }, // UUID or ObjectId as string
       title: String,
       price: Number,
       img: String,
       quantity: { type: Number, default: 1 },
+      size: String,
     }
   ]
 }, { timestamps: true });
