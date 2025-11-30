@@ -224,16 +224,23 @@ export default function Women() {
               className="flex-1 flex flex-col justify-center"
             >
               <BlurText
-                text="Featured Products"
+                text="Featured "
                 delay={100}
                 animateBy="words"
                 direction="top"
-                className="text-5xl md:text-8xl font-fancy font-bold text-brand-navy mb-4"
+                className="text-5xl md:text-8xl font-sansTrend font-bold text-brand-navy mb-4"
+              />
+              <BlurText
+                text="Products"
+                delay={100}
+                animateBy="words"
+                direction="top"
+                className="text-5xl md:text-8xl font-sansTrend font-bold text-brand-gold mb-4"
               />
               <ShinyText
                 text="Check out our trending collection from all categories"
                 speed={5}
-                className="text-3xl md:text-3xl font-fancy text-brand-cloudy"
+                className="text-3xl md:text-4xl font-fancy text-brand-maroon mb-6"
               />
             </motion.div>
 
