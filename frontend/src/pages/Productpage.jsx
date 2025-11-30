@@ -57,9 +57,10 @@ export default function ProductPage() {
     setRedirectTo(redirect);
     setShowPopup(true);
   };
+// ⭐ FINAL ADD TO CART FUNCTION (PASTE)
 const handleAddToCart = () => {
   addToCart({
-    id: product._id,
+    productId: product._id,   // 🔥 ALWAYS send productId (string)
     title: product.title,
     price: product.price,
     img: product.img,
@@ -70,23 +71,24 @@ const handleAddToCart = () => {
   openPopup("Item added to cart", "/cart");
 };
 
+// ⭐ FINAL ADD TO WISHLIST
 const handleAddToWishlist = () => {
   addToWishlist({
-    id: product._id,
+    productId: product._id,
     title: product.title,
     price: product.price,
     img: product.img,
-    quantity: qty,         // ⭐ add quantity
-    size: selectedSize,    // ⭐ add size
+    quantity: qty,
+    size: selectedSize,
   });
 
   openPopup("Item added to wishlist", "/wishlist");
 };
 
-
+// ⭐ FINAL PROCEED-TO-CHECKOUT
 const handleCheckout = () => {
   addToCart({
-    id: product._id,
+    productId: product._id,
     title: product.title,
     price: product.price,
     img: product.img,
@@ -96,7 +98,6 @@ const handleCheckout = () => {
 
   navigate("/checkout");
 };
-
 
   // ⭐ Currency symbol based on selected country
   const currencySymbol =

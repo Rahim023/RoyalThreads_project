@@ -9,40 +9,47 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://localhost:5000/api";
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:5000/api",
+  });
 
-  // Axios with token
-  const axiosInstance = axios.create({ baseURL: BASE_URL });
   axiosInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
 
-  // ⭐ Normalize FULL product details
-  const normalizeItem = (item) => {
-    const id =
-      item?.id?.toString?.() ||
-      item?._id?.toString?.() ||
-      item.id ||
-      item._id;
+  // 🔹 Resolve ID from ANY shape
+  const resolveId = (item) => {
+    if (!item) return null;
+
+    if (item.productId) return String(item.productId);
+    if (item._id) return String(item._id);
+    if (item.id) return String(item.id);
+    if (item.product && (item.product._id || item.product.id)) {
+      return String(item.product._id || item.product.id);
+    }
+    return null;
+  };
+
+  // 🔹 Normalize wishlist item
+  const normalize = (item) => {
+    const prod = item.product || item;
+    const id = resolveId(item) || resolveId(prod) || "unknown";
 
     return {
       id,
-      title: item.title || "Untitled Product",
-      img: item.img || item.images?.[0] || "",
-      price: item.price || 0,
-      description: item.description || "",
-      rating: item.rating || 4,
-      stock: item.stock || 10,
-      brand: item.brand || "Royal Threads",
+      title: prod.title || item.title || "Untitled Product",
+      img: prod.img || item.img || prod.images?.[0] || "",
+      price: prod.price || item.price || 0,
+      size: item.size,
       ...item,
     };
   };
 
-  // ⭐ Fetch wishlist on load
+  // 🔹 Load wishlist on mount
   useEffect(() => {
-    const fetchWishlist = async () => {
+    const load = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         setWishlist([]);
@@ -52,8 +59,7 @@ export const WishlistProvider = ({ children }) => {
 
       try {
         const res = await axiosInstance.get("/wishlist");
-        const items = res.data.items || [];
-        setWishlist(items.map((p) => normalizeItem(p)));
+        setWishlist((res.data.items || []).map(normalize));
       } catch (err) {
         console.error("Wishlist fetch error:", err.response?.data || err);
       } finally {
@@ -61,24 +67,24 @@ export const WishlistProvider = ({ children }) => {
       }
     };
 
-    fetchWishlist();
+    load();
   }, []);
 
-  // ⭐ Add product
+  // 🔹 Add product
   const addToWishlist = async (product) => {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("Login required");
+    const productId = resolveId(product);
 
-    const productId = product.id || product._id;
-    if (!productId) return alert("Product ID missing");
+    if (!productId) {
+      console.error("❌ Product ID missing in addToWishlist:", product);
+      return alert("Product ID missing");
+    }
 
     try {
       const res = await axiosInstance.post("/wishlist/add", {
         productId: String(productId),
       });
 
-      const items = res.data.items || [];
-      setWishlist(items.map((p) => normalizeItem(p)));
+      setWishlist((res.data.items || []).map(normalize));
     } catch (err) {
       console.error("Wishlist add error:", err.response?.data || err);
       alert(
@@ -88,12 +94,11 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  // ⭐ Remove product
+  // 🔹 Remove product
   const removeFromWishlist = async (id) => {
     try {
-      const res = await axiosInstance.delete(`/wishlist/${id}`);
-      const items = res.data.items || [];
-      setWishlist(items.map((p) => normalizeItem(p)));
+      const res = await axiosInstance.delete(`/wishlist/${String(id)}`);
+      setWishlist((res.data.items || []).map(normalize));
     } catch (err) {
       console.error("Wishlist remove error:", err.response?.data || err);
     }

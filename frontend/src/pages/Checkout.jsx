@@ -112,9 +112,9 @@ export default function Checkout() {
 
                   {/* DELETE BUTTON */}
                   <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="ml-4 text-red-600 hover:text-red-800 transition"
-                  >
+  onClick={() => removeFromCart(item.productId)}
+  className="ml-4 text-red-600 hover:text-red-800"
+>
                     <Trash2 size={22} />
                   </button>
                 </div>
