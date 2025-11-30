@@ -10,6 +10,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 // 🔹 Pages
+import ProductPage from "./pages/Productpage";
 import SignatureSeries from "./pages/Signature";
 import SignatureProductPage from "./pages/SignatureProductPage";
 import Home from "./pages/Home";
@@ -61,6 +62,8 @@ export default function App() {
             <Route path="/women/sarees" element={<WomenSarees />} />
             <Route path="/women/jewelry" element={<WomenJewelry />} />
             <Route path="/women/evening" element={<WomenEvening />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+
 
             {/* 🔹 Cart + Checkout */}
             <Route path="/cart" element={<Cart />} />

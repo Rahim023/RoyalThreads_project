@@ -69,3 +69,18 @@ export const getTrendingProducts = async (req, res) => {
     return res.status(500).json({ message: "Server Error" });
   }
 };
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id).lean();
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.json(formatProduct(product));
+  } catch (err) {
+    console.error("❌ Error in getProductById:", err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
