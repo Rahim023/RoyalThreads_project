@@ -34,6 +34,10 @@ import CategoryPage from "./pages/categoryPage";
 import Accessories from "./pages/Accessories";
 import Jewelry from "./pages/Jewelry";
 
+// ⭐ NEW IMPORTS ⭐
+import PaymentMethod from "./pages/PaymentMethod";
+import PaymentSuccess from "./pages/PaymentSuccess";
+
 export default function App() {
   return (
     <CartProvider>
@@ -47,7 +51,7 @@ export default function App() {
             <Route path="/men" element={<Men />} />
             <Route path="/women" element={<Women />} />
 
-            {/* 🔹 Main Categories */}
+            {/* 🔹 Main Sections */}
             <Route path="/wedding" element={<Wedding />} />
             <Route path="/signature" element={<Signature />} />
             <Route path="/discover" element={<Discover />} />
@@ -61,28 +65,38 @@ export default function App() {
             <Route path="/product/:id" element={<ProductPage />} />
 
 
-            {/* 🔹 Cart & Orders */}
+            {/* 🔹 Cart + Checkout */}
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-status" element={<OrderStatus />} />
+
+            {/* ⭐ NEW PAYMENT ROUTES ⭐ */}
+            <Route path="/payment/:orderId" element={<PaymentMethod />} />
+            <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
+
+            {/* ⭐ ORDERS PAGE — FIXED ⭐ */}
             <Route path="/orders" element={<OrderStatus />} />
+
+            {/* 🔹 Detailed order tracking */}
+            <Route path="/order-status/:orderId" element={<OrderStatus />} />
+            <Route path="/order-status" element={<OrderStatus />} />
 
             {/* 🔹 Wishlist */}
             <Route path="/wishlist" element={<Wishlist />} />
-    
+
             {/* 🔹 Authentication */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            {/* 🔹 Category & Subcategory Pages */}
+            {/* 🔹 Categories */}
             <Route path="/category/:name" element={<CategoryPage />} />
             <Route path="/accessories" element={<Accessories />} />
             <Route path="/jewelry" element={<Jewelry />} />
+
             {/* 🔹 Signature Series */}
             <Route path="/signature-series" element={<SignatureSeries />} />
             <Route path="/signature/:slug" element={<SignatureProductPage />} />
 
-            {/* 🔹 Catch-all 404 */}
+            {/* 🔹 404 Page */}
             <Route
               path="*"
               element={
