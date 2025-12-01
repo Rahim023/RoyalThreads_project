@@ -24,7 +24,7 @@ export default function Cart() {
   ).toFixed(2);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       {/* 🔹 Global Header */}
       <Header />
 
@@ -65,7 +65,7 @@ export default function Cart() {
 
                 {/* Remove Button */}
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.id, item.size)}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                 >
                   Remove

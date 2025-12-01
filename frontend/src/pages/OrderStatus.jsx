@@ -135,7 +135,7 @@ export default function OrderStatus() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-brand-ivory to-brand-mist font-inter">
+    <div className="min-h-screen bg-gradient-to-b from-brand-ivory to-brand-mist font-sansTrend">
       <Header />
 
       <section className="px-6 md:px-20 py-16">

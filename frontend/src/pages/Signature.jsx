@@ -1,39 +1,55 @@
+// src/pages/SignatureSeries.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
-import { ArrowRight, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function SignatureSeries() {
   const [products, setProducts] = useState([]);
   const [macroShots, setMacroShots] = useState([]);
+  const [spotlight, setSpotlight] = useState([]);
   const [heroImg, setHeroImg] = useState("");
   const [splitLeft, setSplitLeft] = useState("");
   const navigate = useNavigate();
 
-  // Fetch Signature Products
+  // fetch from backend
   useEffect(() => {
     fetch("http://localhost:5000/api/signatures")
       .then((res) => res.json())
       .then((data) => {
-        if (!Array.isArray(data)) return;
+        setProducts(data || []);
 
-        setProducts(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setHeroImg(data[0].images?.[0] || "");
+          setSplitLeft(data[1]?.images?.[0] || data[0].images?.[0] || "");
 
-        setHeroImg(data[0]?.images?.[0] || "");
-        setSplitLeft(data[1]?.images?.[0] || data[0]?.images?.[0]);
+          setSpotlight(
+            data.slice(0, 3).map((p) => ({
+              id: p._id || p.id,
+              title: p.title,
+              img: p.images?.[0] || ""
+            }))
+          );
 
-        // Collect macro shots from all products
-        const shots = [];
-        data.forEach((p) => {
-          if (Array.isArray(p.macroShots)) shots.push(...p.macroShots);
-        });
-        setMacroShots(shots.slice(0, 4));
+          // macro shots from different products (DB)
+          const collected = [];
+          data.forEach((item) => {
+            if (Array.isArray(item.macroShots) && item.macroShots.length) {
+              collected.push(...item.macroShots);
+            }
+          });
+          setMacroShots(collected.slice(0, 4));
+        }
       })
-      .catch((err) => console.error("Signature fetch failed:", err));
+      .catch((err) => {
+        console.error("Failed to load signatures", err);
+      });
   }, []);
 
+  // --------------------
   // Carousel
+  // --------------------
   const [centerIndex, setCenterIndex] = useState(0);
   const carouselTimer = useRef(null);
 
@@ -42,7 +58,6 @@ export default function SignatureSeries() {
       carouselTimer.current = setInterval(() => {
         setCenterIndex((i) => (i + 1) % products.length);
       }, 4000);
-
       return () => clearInterval(carouselTimer.current);
     }
   }, [products.length]);
@@ -51,7 +66,7 @@ export default function SignatureSeries() {
   const next = () => setCenterIndex((i) => (i + 1) % products.length);
 
   return (
-    <div className="min-h-screen bg-brand-mist font-inter">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       {/* HERO */}
@@ -63,8 +78,7 @@ export default function SignatureSeries() {
           src={heroImg || "https://picsum.photos/1600/900?random=101"}
           className="absolute inset-0 w-full h-full object-cover brightness-90"
         />
-
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/20"></div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -75,11 +89,9 @@ export default function SignatureSeries() {
           <h1 className="text-5xl md:text-7xl font-fancy text-brand-ivory tracking-tight drop-shadow-lg">
             Signature Series
           </h1>
-
-          <p className="mt-6 text-lg md:text-xl text-brand-ivory/90 max-w-2xl mx-auto">
+          <p className="mt-6 text-lg md:text-xl text-brand-ivory/90 max-w-2xl mx-auto font-inter">
             Where craft meets identity — a limited collection celebrating time-honored techniques.
           </p>
-
           <div className="mt-8 flex justify-center gap-4">
             <a
               href="#explore"
@@ -115,20 +127,22 @@ export default function SignatureSeries() {
             <h2 className="text-4xl md:text-5xl font-fancy text-brand-navy">
               The Signature Philosophy
             </h2>
-
             <p className="text-gray-700 text-lg leading-relaxed">
-              The Signature Series represents the peak of our craft—timeless, intentional, and refined.
+              The Signature Series represents the peak of our craft.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-6 bg-white rounded-2xl shadow-md">
                 <h4 className="font-semibold text-brand-navy">Limited Editions</h4>
-                <p className="text-sm text-gray-600 mt-2">Small-batch luxury fashion pieces.</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Small-batch luxury fashion pieces.
+                </p>
               </div>
-
               <div className="p-6 bg-white rounded-2xl shadow-md">
                 <h4 className="font-semibold text-brand-navy">Made to Last</h4>
-                <p className="text-sm text-gray-600 mt-2">Timeless craftsmanship + premium fabric.</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Timeless craftsmanship + premium fabric.
+                </p>
               </div>
             </div>
 
@@ -137,7 +151,7 @@ export default function SignatureSeries() {
                 href="#carousel"
                 className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-brand-navy text-brand-ivory font-medium"
               >
-                View Signature Pieces <ChevronDown size={16} />
+                View Signature Pieces <ChevronRight size={16} />
               </a>
             </div>
           </motion.div>
@@ -147,7 +161,9 @@ export default function SignatureSeries() {
       {/* CAROUSEL */}
       <section id="carousel" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h3 className="text-4xl font-fancy text-brand-navy mb-6">Signature Pieces</h3>
+          <h3 className="text-4xl font-fancy text-brand-navy mb-6">
+            Signature Pieces
+          </h3>
 
           <div className="relative">
             <div className="flex items-center justify-center gap-6">
@@ -158,7 +174,8 @@ export default function SignatureSeries() {
               <div className="w-[780px] max-w-full flex items-center justify-center">
                 <div className="relative w-full h-[520px]">
                   {products.map((p, idx) => {
-                    const offset = (idx - centerIndex + products.length) % products.length;
+                    const offset =
+                      (idx - centerIndex + products.length) % products.length;
                     const isCenter = offset === 0;
 
                     const posClass =
@@ -172,33 +189,45 @@ export default function SignatureSeries() {
 
                     return (
                       <motion.div
-                        key={p._id}
+                        key={p._id || p.id}
                         layout
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6 }}
                         className={`absolute left-0 right-0 mx-auto w-[70%] md:w-[62%] rounded-3xl overflow-hidden shadow-2xl bg-white ${posClass}`}
-                        style={{ transition: "transform 0.6s ease, opacity 0.6s ease" }}
+                        style={{
+                          transition:
+                            "transform 0.6s ease, opacity 0.6s ease",
+                        }}
                       >
                         <img
-                          src={p.images?.[0]}
-                          className={`w-full h-[360px] object-cover ${isCenter ? "" : "filter grayscale-[10%]"}`}
+                          src={p.images?.[0] || "https://picsum.photos/900/900?random=11"}
+                          className={`w-full h-[360px] object-cover ${
+                            isCenter ? "" : "filter grayscale-10"
+                          }`}
                         />
-
                         <div className="p-6 bg-white">
                           <div className="flex items-center justify-between">
                             <div>
-                              <h4 className="text-2xl font-semibold text-brand-navy">{p.title}</h4>
-                              <p className="text-sm text-gray-600 mt-1">{p.tagline}</p>
+                              <h4 className="text-2xl font-semibold text-brand-navy">
+                                {p.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {p.tagline}
+                              </p>
                             </div>
 
                             <div className="text-right">
+                              <div className="text-sm text-gray-400">
+                                Limited
+                              </div>
                               <button
-                                onClick={() => navigate(`/signature/${p.slug}`)}
-                                className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
-                              >
-                                View Piece
-                              </button>
+  onClick={() => navigate(`/signature/${p.slug}`)}
+  className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
+>
+  View Piece
+</button>
+
                             </div>
                           </div>
                         </div>
@@ -219,29 +248,31 @@ export default function SignatureSeries() {
       {/* MACRO SHOTS */}
       <section className="py-16 bg-brand-mist">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-3xl font-semibold text-brand-navy mb-6">Details Up Close</h3>
+          <h3 className="text-3xl font-semibold mb-6">Details Up Close</h3>
 
-          {macroShots.length >= 4 ? (
-            <div className="grid grid-cols-6 gap-6">
-              <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden shadow-lg">
-                <img src={macroShots[0]} className="w-full h-full object-cover" />
-              </div>
+          <div className="grid grid-cols-6 gap-6">
+            {macroShots.length >= 4 ? (
+              <>
+                <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[0]} className="w-full h-full object-cover" />
+                </div>
 
-              <div className="col-span-2 rounded-2xl overflow-hidden shadow-lg">
-                <img src={macroShots[1]} className="w-full h-full object-cover" />
-              </div>
+                <div className="col-span-2 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[1]} className="w-full h-full object-cover" />
+                </div>
 
-              <div className="col-span-1 rounded-2xl overflow-hidden shadow-lg">
-                <img src={macroShots[2]} className="w-full h-full object-cover" />
-              </div>
+                <div className="col-span-1 rounded-2xl overflow-hidden shadow-lg">
+                  <img src={macroShots[2]} className="w-full h-full object-cover" />
+                </div>
 
-              <div className="col-span-6 rounded-2xl overflow-hidden shadow-lg mt-4">
-                <img src={macroShots[3]} className="w-full h-[320px] object-cover" />
-              </div>
-            </div>
-          ) : (
-            <p className="text-gray-500">Loading details...</p>
-          )}
+                <div className="col-span-6 rounded-2xl overflow-hidden shadow-lg mt-4">
+                  <img src={macroShots[3]} className="w-full h-[320px] object-cover" />
+                </div>
+              </>
+            ) : (
+              <p className="text-gray-500 col-span-6">Loading details...</p>
+            )}
+          </div>
         </div>
       </section>
 

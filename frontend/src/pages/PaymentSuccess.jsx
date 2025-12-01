@@ -54,7 +54,7 @@ export default function PaymentSuccess() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-brand-mist flex flex-col">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       <section className="text-center py-24">

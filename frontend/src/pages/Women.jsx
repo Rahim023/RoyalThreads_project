@@ -145,7 +145,7 @@ export default function Women() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-semibold hover:bg-brand-ivory hover:text-brand-navy transition"
+            className="px-6 py-3 rounded-lg border-2 border-brand-navy bg-brand-gold text-brand-navy  hover:bg-brand-navy hover:text-brand-gold hover:border-brand-gold transition"
             onClick={() => window.scrollTo({ top: 600, behavior: "smooth" })}
           >
             Shop Now
@@ -222,27 +222,30 @@ export default function Women() {
               animate={featuredControls}
               transition={{ type: "spring", stiffness: 80, damping: 12 }}
               className="flex-1 flex flex-col justify-center"
-            >
+            ><div className="flex l">
               <BlurText
                 text="Featured "
                 delay={100}
                 animateBy="words"
                 direction="top"
-                className="text-5xl md:text-8xl font-sansTrend font-bold text-brand-navy mb-4"
+                className="text-5xl md:text-8xl font-fancy font-light text-brand-navy mb-4 gap-5"
               />
               <BlurText
                 text="Products"
                 delay={100}
                 animateBy="words"
                 direction="top"
-                className="text-5xl md:text-8xl font-sansTrend font-bold text-brand-gold mb-4"
-              />
+                className="text-5xl md:text-8xl font-fancy font-light text-brand-gold mb-4"
+              /></div>
               <ShinyText
                 text="Check out our trending collection from all categories"
                 speed={5}
-                className="text-3xl md:text-4xl font-fancy text-brand-maroon mb-6"
+                className="text-3xl md:text-2xl font-sansTrend text-gray-600 mb-6"
               />
+                    <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-maroon to-transparent "></div>
+
             </motion.div>
+
 
             <div className="flex-1 flex justify-end">
               <div className="card-swap-wrapper">
@@ -275,7 +278,7 @@ export default function Women() {
 
       {/* Explore All Products */}
       <section ref={exploreRef} className="py-12 px-6 md:px-20">
-        <h2 className="text-3xl md:text-4xl font-sansTrend font-bold text-brand-navy text-center mb-10">
+        <h2 className="text-3xl md:text-4xl font-sansSerif font-light text-brand-navy text-center mb-10">
           Explore All Products
         </h2>
         <motion.div

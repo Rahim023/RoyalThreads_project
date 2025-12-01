@@ -108,7 +108,7 @@ const handleCheckout = () => {
       : "₹";
 
   return (
-    <div className="min-h-screen bg-brand-mist font-inter">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       <div className="px-6 md:px-20 py-6">

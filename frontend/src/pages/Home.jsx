@@ -64,7 +64,7 @@ export default function Home() {
       {[...Array(30)].map((_, i) => (
         <span
           key={i}
-          className="absolute w-1 h-1 bg-white rounded-full opacity-50 animate-twinkle"
+          className="absolute w-1 h-1 bg-white rounded-full opacity-40 animate-twinkle"
           style={{
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
@@ -78,53 +78,59 @@ export default function Home() {
   /* Gradient Orbs */
   const GradientOrbs = () => (
     <>
-      <div className="absolute -top-10 -left-10 w-60 h-60 bg-brand-gold/30 blur-3xl rounded-full"></div>
-      <div className="absolute bottom-0 right-0 w-72 h-72 bg-brand-navy/40 blur-[110px] rounded-full"></div>
+      <div className="absolute -top-20 -left-20 w-72 h-72 bg-brand-gold/20 blur-[120px] rounded-full"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-brand-navy/50 blur-[150px] rounded-full"></div>
     </>
   );
 
   return (
-    <div className="min-h-screen flex flex-col px-2 relative overflow-hidden font-sansTrend">
+    <div className="min-h-screen flex flex-col px-3 md:px-4 relative overflow-hidden font-sansTrend">
       <Header />
       <Sparkles />
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section className="relative flex flex-col items-center justify-center text-center 
-      overflow-hidden min-h-[550px] md:min-h-[750px]">
-        <div className="absolute inset-0 -z-10">
-          <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
+      overflow-hidden min-h-[650px] md:min-h-[900px] pt-10">
+        <div className="absolute inset-0 -z-10 opacity-80">
+          <Silk speed={5} scale={1.2} highlightColor="#D4C7B0" noiseIntensity={0.05} rotation={0} />
         </div>
         <GradientOrbs />
+
         <BlurText
           text="Discover Your Royal Style!"
           delay={150}
           animateBy="words"
           direction="top"
-          className="text-4xl md:text-5xl font-serifFancy font-medium text-black"
+          className="text-4xl md:text-7xl font-bold text-brand-ivory drop-shadow-xl tracking-wide"
         />
+
         <ShinyText
           text="Curated collections crafted for elegance."
           speed={3}
-          className="mt-4 text-lg font-script text-black"
+          className="mt-4 text-3xl md:text-4xl font-script text-brand-gold drop-shadow-2xl"
         />
+
         <motion.button
           onClick={() => scrollToSection("trending")}
           whileHover={{ scale: 1.1 }}
-          className="mt-6 px-7 py-3 bg-brand-gold text-brand-navy font-semibold rounded-2xl border-2 border-brand-navy hover:bg-brand-ivory hover:text-brand-navy transition"
+          className="mt-8 px-10 py-4 bg-brand-gold/90 text-brand-navy font-semibold 
+          rounded-2xl border-2 border-brand-navy shadow-xl 
+          hover:bg-brand-ivory hover:text-brand-navy transition"
         >
           Shop Now
         </motion.button>
       </section>
-      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* --- COLLECTIONS SECTIONS --- */}
-      {/* Destination Cozy */}
-      <section id="collections" className="relative">
-        <div className="relative flex w-full h-[60vh] md:h-[80vh] overflow-hidden">
+      <div className="w-full h-[10px] bg-gradient-to-r from-transparent via-brand-gold to-transparent mt-8"></div>
+
+      {/* COLLECTIONS */}
+      <section id="collections" className="relative py-10">
+        <div className="relative flex w-full h-[65vh] md:h-[90vh] overflow-hidden rounded-3xl shadow-2xl">
+
           {/* Women */}
           <motion.div
             whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
             className="w-1/2 h-full relative cursor-pointer"
@@ -132,16 +138,11 @@ export default function Home() {
           >
             <img
               src="https://picsum.photos/id/1011/1200/800"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover brightness-[0.85]"
               alt="Women Fashion"
             />
-            <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/women");
-              }}
-            >
+            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
+            font-serifFancy text-white drop-shadow-2xl">
               Explore Women’s Fashion
             </p>
           </motion.div>
@@ -149,7 +150,7 @@ export default function Home() {
           {/* Men */}
           <motion.div
             whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
             className="w-1/2 h-full relative cursor-pointer"
@@ -157,44 +158,40 @@ export default function Home() {
           >
             <img
               src="https://picsum.photos/id/1012/1200/800"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover brightness-[0.85]"
               alt="Men Fashion"
             />
-            <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/men");
-              }}
-            >
+            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
+            font-serifFancy text-white drop-shadow-2xl">
               Explore Men’s Fashion
             </p>
           </motion.div>
 
           {/* Center Title */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
           >
-            <h2 className="text-4xl md:text-5xl font-serifFancy text-white drop-shadow-lg">
+            <h2 className="text-5xl md:text-6xl font-serifFancy text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.7)]">
               Destination: Cozy
             </h2>
-            <p className="mt-2 text-lg md:text-xl font-sansTrend text-white drop-shadow-md">
+            <p className="mt-3 text-xl md:text-2xl text-white/90 font-light drop-shadow-lg">
               Your curated style experience awaits
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Explore More Section */}
-      <section id="explore-more" className="relative">
-        <div className="relative flex w-full h-[60vh] md:h-[80vh] overflow-hidden">
+      {/* Explore More */}
+      <section id="explore-more" className="relative py-12">
+        <div className="relative flex w-full h-[65vh] md:h-[90vh] overflow-hidden rounded-3xl shadow-2xl">
+
           {/* Signature */}
           <motion.div
             whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
             className="w-1/2 h-full relative cursor-pointer"
@@ -202,16 +199,11 @@ export default function Home() {
           >
             <img
               src="https://picsum.photos/id/1015/1200/800"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover brightness-[0.85]"
               alt="Signature Collection"
             />
-            <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/signature");
-              }}
-            >
+            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
+            font-serifFancy text-white drop-shadow-2xl">
               Explore Signature
             </p>
           </motion.div>
@@ -219,7 +211,7 @@ export default function Home() {
           {/* Kids */}
           <motion.div
             whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1 }}
             className="w-1/2 h-full relative cursor-pointer"
@@ -227,50 +219,51 @@ export default function Home() {
           >
             <img
               src="https://picsum.photos/id/1016/1200/800"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover brightness-[0.85]"
               alt="Kids Collection"
             />
-            <p
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-2xl md:text-3xl font-serifFancy text-white drop-shadow-lg cursor-pointer hover:underline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/kids");
-              }}
-            >
+            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
+            font-serifFancy text-white drop-shadow-2xl">
               Explore Kids
             </p>
           </motion.div>
 
           {/* Center Title */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
           >
-            <h2 className="text-4xl md:text-5xl font-serifFancy text-white drop-shadow-lg">
+            <h2 className="text-5xl md:text-6xl font-serifFancy text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.7)]">
               Explore More
             </h2>
-            <p className="mt-2 text-lg md:text-xl font-sansTrend text-white drop-shadow-md">
+            <p className="mt-3 text-xl md:text-2xl text-white/90 font-light drop-shadow-lg">
               Discover our exclusive collections
             </p>
           </motion.div>
         </div>
       </section>
-      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* Trending Section */}
-      <section id="trending" className="py-10 bg-gradient-to-b from-brand-navy to-brand-mist md:px-16">
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
+      <div className="w-full h-[10px] bg-gradient-to-r from-transparent via-brand-gold to-transparent"></div>
+
+      {/* Trending */}
+      <section id="trending" className="py-16 bg-brand-mist md:px-16 rounded-t-3xl shadow-inner">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center text-4xl md:text-5xl font-serifFancy text-brand-mist"
+          transition={{ duration: 0.8 }}
+          className="text-6xl font-fancy text-center pt-10 text-brand-gold/90"
         >
-          Trending Now
-        </motion.h2>
+          Explore the <span className="text-brand-navy">Trending</span>
+          <div className="h-1 w-48 bg-brand-navy/60 mb-6 mt-4 mx-auto rounded-full"></div>
+        </motion.h3>
 
-        <div className="w-full h-full mt-10">
+        <p className="text-brand-maroon max-w-xl text-center font-sansTrend font-light mx-auto mt-2 text-lg">
+          Inspired by global runway trends and handcrafted traditions.
+        </p>
+
+        <div className="w-full h-full mt-12">
           {trendingProducts.length > 0 ? (
             <CircularGallery
               items={trendingProducts.map(p => ({
@@ -279,19 +272,20 @@ export default function Home() {
               }))}
             />
           ) : (
-            <p className="text-center text-white mt-8">No trending products available.</p>
+            <p className="text-center text-brand-navy mt-8">No trending products available.</p>
           )}
         </div>
       </section>
-      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* Other Products Section */}
-      <section id="other-products" className="pb-20 bg-gradient-to-b from-brand-mist to-brand-navy px-2 md:px-16">
+      <div className="w-full h-[10px] bg-gradient-to-r from-transparent via-brand-gold to-transparent"></div>
+
+      {/* Other Products */}
+      <section id="other-products" className="pb-20 bg-gradient-to-b from-brand-mist to-brand-navy px-4 md:px-16 rounded-t-3xl">
         <motion.h2
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="text-center py-12 text-4xl md:text-5xl font-serifFancy text-brand-navy"
+          className="text-center py-12 text-5xl font-serifFancy text-brand-navy"
         >
           Other Products
         </motion.h2>
@@ -299,7 +293,7 @@ export default function Home() {
         {loading ? (
           <p className="text-center text-brand-navy font-sansTrend">Loading products...</p>
         ) : otherProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {otherProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -310,8 +304,8 @@ export default function Home() {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 text-center bg-white font-sansTrend">
-        <h2 className="text-3xl md:text-4xl font-serifFancy text-brand-navy">
+      <section className="py-20 text-center bg-white font-sansTrend">
+        <h2 className="text-4xl md:text-5xl font-serifFancy text-brand-navy">
           Stay in the Loop
         </h2>
         <p className="mt-2 text-brand-charcoal/80">
@@ -322,19 +316,20 @@ export default function Home() {
           <input
             type="email"
             placeholder="Enter your email"
-            className="px-4 py-2 rounded-l-lg border border-gray-300 w-72 focus:ring-2 focus:ring-brand-gold"
+            className="px-4 py-3 rounded-l-lg border border-gray-300 w-72 focus:ring-2 focus:ring-brand-gold"
           />
-          <button className="px-6 py-2 rounded-r-lg bg-brand-gold text-brand-charcoal hover:bg-brand-navy hover:text-white transition">
+          <button className="px-6 py-3 rounded-r-lg bg-brand-gold text-brand-charcoal 
+          hover:bg-brand-navy hover:text-white transition shadow-lg">
             Subscribe
           </button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-brand-navy text-brand-ivory py-10 mt-auto font-sansTrend">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <footer className="bg-brand-navy text-brand-ivory py-14 mt-auto font-sansTrend shadow-inner">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12">
           <div>
-            <h4 className="font-serifFancy mb-4">Shop</h4>
+            <h4 className="font-serifFancy mb-4 text-lg">Shop</h4>
             <ul className="space-y-2 text-sm">
               <li>Women</li>
               <li>Men</li>
@@ -344,7 +339,7 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 className="font-serifFancy mb-4">Help</h4>
+            <h4 className="font-serifFancy mb-4 text-lg">Help</h4>
             <ul className="space-y-2 text-sm">
               <li>Contact Us</li>
               <li>Shipping</li>
@@ -354,7 +349,7 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 className="font-serifFancy mb-4">About</h4>
+            <h4 className="font-serifFancy mb-4 text-lg">About</h4>
             <ul className="space-y-2 text-sm">
               <li>Our Story</li>
               <li>Careers</li>
@@ -363,7 +358,7 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 className="font-serifFancy mb-4">Follow Us</h4>
+            <h4 className="font-serifFancy mb-4 text-lg">Follow Us</h4>
             <ul className="space-y-2 text-sm">
               <li>Instagram</li>
               <li>Facebook</li>
@@ -372,7 +367,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-sm mt-6">
+        <p className="text-center text-xs mt-10 opacity-80">
           © 2025 MyClothing. All rights reserved.
         </p>
       </footer>

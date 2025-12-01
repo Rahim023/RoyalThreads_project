@@ -131,6 +131,7 @@ class Media {
     this.createTitle();
     this.onResize();
   }
+
   createShader() {
     const texture = new Texture(this.gl, { generateMipmaps: true });
     this.program = new Program(this.gl, {
@@ -191,10 +192,9 @@ class Media {
       },
       transparent: true
     });
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
-
-    // FIX: Only use your real image — NO PICSUM
     img.src = this.image;
 
     img.onload = () => {
@@ -202,6 +202,7 @@ class Media {
       this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
     };
   }
+
   createMesh() {
     this.plane = new Mesh(this.gl, {
       geometry: this.geometry,
@@ -209,6 +210,7 @@ class Media {
     });
     this.plane.setParent(this.scene);
   }
+
   createTitle() {
     this.title = new Title({
       gl: this.gl,
@@ -219,6 +221,7 @@ class Media {
       font: this.font
     });
   }
+
   update(scroll, direction) {
     this.plane.position.x = this.x - scroll.current - this.extra;
 
@@ -259,6 +262,7 @@ class Media {
       this.isBefore = this.isAfter = false;
     }
   }
+
   onResize({ screen, viewport } = {}) {
     if (screen) this.screen = screen;
     if (viewport) {
@@ -276,7 +280,7 @@ class Media {
 }
 
 class App {
-  constructor(container, { items, bend, textColor = '#ffffff', borderRadius = 0, font = 'bold 30px Figtree', scrollSpeed = 2, scrollEase = 0.05 } = {}) {
+  constructor(container, { items, bend, textColor = '#ddd', borderRadius = 0.05, font = 'bold 30px Figtree', scrollSpeed = 2, scrollEase = 0.05 } = {}) {
     document.documentElement.classList.remove('no-js');
     this.container = container;
     this.scrollSpeed = scrollSpeed;
@@ -320,7 +324,7 @@ class App {
     }
 
     const galleryItems = items.map(item => ({
-      image: item.img || item.image,     // FIXED — NO PICSUM
+      image: item.img || item.image,     // ✔ FIX WORKS WITH NEW MAPPING
       text: item.title || item.name || "No Title",
     }));
 

@@ -24,7 +24,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-mist flex flex-col">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       {/* HERO */}

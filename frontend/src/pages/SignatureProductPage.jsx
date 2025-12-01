@@ -1,3 +1,4 @@
+// src/pages/SignatureProductPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -7,6 +8,9 @@ import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import { ArrowLeft } from "lucide-react";
 
+// ⭐ Currency Hook (same as ProductPage)
+import { useCurrency } from "../context/CurrencyContext";
+
 export default function SignatureProductPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -14,46 +18,44 @@ export default function SignatureProductPage() {
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
 
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
+  const { convertPrice, country } = useCurrency();
+
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [redirectTo, setRedirectTo] = useState("/");
 
   useEffect(() => {
-    async function load() {
+    async function loadProduct() {
       try {
-        const res = await fetch(`http://localhost:5000/api/signatures/slug/${slug}`);
+        const res = await fetch(
+          `http://localhost:5000/api/signatures/slug/${slug}`
+        );
 
-        if (!res.ok) {
-          alert("Product not found");
-          return;
-        }
+        if (!res.ok) return console.error("Signature fetch failed");
 
         const data = await res.json();
 
         setProduct(data);
-        setMainImage(data.images?.[0] || "");
+        setMainImage(data.images?.[0] || data.img);
         setSelectedSize(data.sizes?.[0] || "");
-        setSelectedColor(data.colors?.[0] || "");
       } catch (err) {
-        console.error("Signature fetch failed:", err);
+        console.error("Error loading signature product", err);
       }
     }
 
-    load();
+    loadProduct();
   }, [slug]);
 
-  if (!product) {
+  if (!product)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading product...
+        Loading...
       </div>
     );
-  }
 
   const openPopup = (msg, redirect) => {
     setPopupMessage(msg);
@@ -61,24 +63,15 @@ export default function SignatureProductPage() {
     setShowPopup(true);
   };
 
+  // ⭐ SAME AS PRODUCT PAGE
   const handleAddToCart = () => {
-    const id = product._id?.toString() || product.id?.toString();
-
-    if (!id) {
-      alert("Item cannot be added. Missing product ID.");
-      return;
-    }
-
     addToCart({
-      id,
-      sku: product.sku,
+      productId: product._id,
       title: product.title,
       price: product.price,
-      currency: product.currency,
-      image: mainImage,
-      qty,
+      img: mainImage,
+      quantity: qty,
       size: selectedSize,
-      color: selectedColor,
     });
 
     openPopup("Item added to cart", "/cart");
@@ -86,17 +79,35 @@ export default function SignatureProductPage() {
 
   const handleAddToWishlist = () => {
     addToWishlist({
-      id: product._id,
+      productId: product._id,
       title: product.title,
       price: product.price,
-      image: mainImage,
+      img: mainImage,
+      quantity: qty,
+      size: selectedSize,
     });
 
     openPopup("Item added to wishlist", "/wishlist");
   };
 
+  const handleCheckout = () => {
+    addToCart({
+      productId: product._id,
+      title: product.title,
+      price: product.price,
+      img: mainImage,
+      quantity: qty,
+      size: selectedSize,
+    });
+
+    navigate("/checkout");
+  };
+
+  const currencySymbol =
+    country === "Canada" ? "CA$" : country === "USA" ? "US$" : "₹";
+
   return (
-    <div className="min-h-screen bg-brand-mist font-inter">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       {/* BACK BUTTON */}
@@ -109,9 +120,10 @@ export default function SignatureProductPage() {
         </button>
       </div>
 
+      {/* PRODUCT BODY (EXACT SAME LAYOUT AS ProductPage) */}
       <section className="max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-10 py-8">
-
-        {/* LEFT: IMAGES */}
+        
+        {/* IMAGE */}
         <div>
           <motion.img
             key={mainImage}
@@ -120,17 +132,17 @@ export default function SignatureProductPage() {
             transition={{ duration: 0.45 }}
             src={mainImage}
             alt={product.title}
-            className="w-full h-[600px] object-cover rounded-2xl shadow-xl"
+            className="w-full h-[600px] object-cover rounded-2xl shadow-lg"
           />
 
           {/* THUMBNAILS */}
           <div className="flex gap-3 mt-4">
-            {product.images?.map((img, i) => (
+            {(product.images || [product.img]).map((img, i) => (
               <button
                 key={i}
                 onClick={() => setMainImage(img)}
                 className={`h-20 w-20 rounded-lg overflow-hidden border ${
-                  mainImage === img ? "border-brand-gold" : "border-transparent"
+                  mainImage === img ? "border-brand-gold" : "border-gray-300"
                 }`}
               >
                 <img src={img} className="w-full h-full object-cover" />
@@ -139,111 +151,96 @@ export default function SignatureProductPage() {
           </div>
         </div>
 
-        {/* RIGHT: DETAILS */}
-        <div className="space-y-5">
-          <h1 className="text-4xl font-fancy text-brand-navy">
-            {product.title}
-          </h1>
+        {/* DETAILS */}
+        <div className="space-y-6">
 
-          <div className="flex items-center gap-4">
-            <div className="text-2xl font-semibold text-brand-gold">
-              ${product.price} {product.currency}
-            </div>
-            <div className="text-sm text-gray-500">• {product.signatureBadge}</div>
+          <h1 className="text-4xl font-fancy text-brand-navy">{product.title}</h1>
+
+          {/* PRICE */}
+          <div className="text-2xl font-semibold text-brand-gold">
+            {currencySymbol} {convertPrice(product.price)}
           </div>
 
           <p className="text-gray-700 leading-relaxed">{product.description}</p>
 
-          {/* CRAFT DETAILS CARD */}
-          <div className="bg-white rounded-xl p-5 shadow-md">
-            <h3 className="font-semibold text-brand-navy">Craftsmanship</h3>
-            <p className="text-sm text-gray-600 mt-1">{product.craftDetails}</p>
-
-            <p className="text-sm mt-2 text-gray-500">Artisan: {product.artisanName}</p>
-          </div>
-
-          {/* OPTIONS */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* SIZE */}
-            <div>
-              <p className="text-sm text-gray-600">Size</p>
-              <div className="mt-2 flex gap-2">
-                {product.sizes?.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSelectedSize(s)}
-                    className={`px-3 py-2 rounded-full border ${
-                      selectedSize === s ? "bg-brand-navy text-white" : "bg-white"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
+          {/* STOCK + RATING (same as ProductPage) */}
+          <div className="flex items-center gap-6">
+            <div className="text-sm text-gray-600">
+              Stock: <span className="font-medium">{product.stock || "—"}</span>
             </div>
-
-            {/* COLOR */}
-            <div>
-              <p className="text-sm text-gray-600">Color</p>
-              <div className="mt-2 flex gap-2">
-                {product.colors?.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setSelectedColor(c)}
-                    className={`px-3 py-2 rounded-full border ${
-                      selectedColor === c ? "bg-brand-navy text-white" : "bg-white"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
+            <div className="text-sm text-gray-600">
+              Rating: <span className="font-medium">{product.rating || "—"}</span>
+            </div>
+            <div className="text-sm text-gray-600">
+              Reviews:{" "}
+              <span className="font-medium">{product.reviewsCount || 0}</span>
             </div>
           </div>
 
-          {/* QUANTITY + BUTTONS */}
-          <div className="flex items-center gap-4">
+          {/* SIZE */}
+          <div>
+            <div className="text-sm text-gray-600">Size</div>
+            <div className="mt-2 flex gap-2">
+              {(product.sizes || ["S", "M", "L"]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSelectedSize(s)}
+                  className={`px-3 py-2 rounded-full border ${
+                    selectedSize === s
+                      ? "bg-brand-navy text-white"
+                      : "bg-white text-gray-700"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* QUANTITY */}
+          <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setQty(Math.max(1, qty - 1))}
-                className="px-3 py-2 bg-white rounded"
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                className="px-3 py-2 rounded bg-white"
               >
                 -
               </button>
               <div className="px-4 py-2 bg-white rounded">{qty}</div>
               <button
-                onClick={() => setQty(qty + 1)}
-                className="px-3 py-2 bg-white rounded"
+                onClick={() => setQty((q) => q + 1)}
+                className="px-3 py-2 rounded bg-white"
               >
                 +
               </button>
             </div>
+          </div>
+
+          {/* BUTTONS (IDENTICAL TO PRODUCT PAGE) */}
+          <div className="flex flex-wrap gap-4">
 
             <button
               onClick={handleAddToCart}
-              className="ml-6 px-6 py-3 rounded-full bg-brand-navy text-brand-ivory font-semibold hover:bg-brand-gold hover:text-brand-navy transition"
+              className="px-6 py-3 rounded-full bg-brand-navy text-brand-ivory font-semibold hover:bg-brand-gold hover:text-brand-navy transition"
             >
               Add to Cart
             </button>
 
             <button
               onClick={handleAddToWishlist}
-              className="px-6 py-3 rounded-full border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
+              className="px-4 py-3 rounded-full border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
             >
               Add to Wishlist
             </button>
+
+            <button
+              onClick={handleCheckout}
+              className="px-6 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold hover:bg-brand-navy hover:text-white transition"
+            >
+              Proceed to Checkout
+            </button>
           </div>
 
-          {/* EXTRA DETAILS */}
-          <div className="text-sm text-gray-500 mt-4 space-y-1">
-            <div>SKU: {product.sku}</div>
-            <div>Fabric: {product.fabric}</div>
-            <div>Care: {product.care}</div>
-            <div>Edition: {product.limitedEdition ? "Limited" : "Standard"}</div>
-            <div>
-              Dimensions: {product.dimensionsCm?.length} x {product.dimensionsCm?.width} cm
-            </div>
-          </div>
         </div>
       </section>
 
@@ -255,7 +252,7 @@ export default function SignatureProductPage() {
       />
 
       <footer className="py-12 text-center text-gray-600">
-        © 2025 Royal Threads — Signature Series
+        © 2025 Royal Threads
       </footer>
     </div>
   );

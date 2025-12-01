@@ -157,6 +157,7 @@ export default function Header() {
         {/* NAVIGATION MENU */}
         <nav className="bg-brand-mist text-brand-charcoal text-sm font-medium">
           <ul className="flex justify-center gap-6 py-2">
+            <li><Link to="/" className="hover:text-brand-gold transition">Home</Link></li>
             <li><Link to="/women" className="hover:text-brand-gold transition">Women</Link></li>
             <li><Link to="/men" className="hover:text-brand-gold transition">Men</Link></li>
             <li><Link to="/wedding" className="hover:text-brand-gold transition">Wedding</Link></li>

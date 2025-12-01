@@ -69,7 +69,7 @@ export default function PaymentMethod() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
       <section className="py-16 px-6 md:px-20 flex-1 bg-brand-mist">
