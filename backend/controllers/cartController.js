@@ -8,7 +8,8 @@ export const getCart = async (req, res) => {
     let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.json({ items: [] });
 
-    res.json(cart);
+    // Return a consistent shape: { items: [...] }
+    return res.json({ items: cart.items });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -56,14 +57,23 @@ export const removeFromCart = async (req, res) => {
   try {
     const userId = req.user.id;
     const productId = req.params.id;
+    const { size } = req.query; // optional size to remove specific item
 
     const cart = await Cart.findOne({ user: userId });
     if (!cart) return res.json({ items: [] });
 
-    cart.items = cart.items.filter((i) => i.productId !== productId);
+    // If size provided, remove only the matching productId+size
+    if (size) {
+      cart.items = cart.items.filter(
+        (i) => !(i.productId === productId && String(i.size) === String(size))
+      );
+    } else {
+      // Fallback: remove items matching productId
+      cart.items = cart.items.filter((i) => i.productId !== productId);
+    }
 
     await cart.save();
-    res.json({ success: true, items: cart.items });
+    return res.json({ success: true, items: cart.items });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

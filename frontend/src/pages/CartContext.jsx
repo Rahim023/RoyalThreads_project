@@ -20,7 +20,8 @@ export const CartProvider = ({ children }) => {
 
   const normalizeItem = (item) => ({
     ...item,
-    id: item?.id?.toString ? item.id.toString() : item._id?.toString ? item._id.toString() : item.id || item._id,
+    id: String(item.productId || item.id || item._id || ""),
+    quantity: Number(item.quantity || 1),
   });
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const addToCart = async (product) => {
   const token = localStorage.getItem("token");
   if (!token) return alert("Login required");
 
-  const productId = product.id || product._id;
+  const productId = product.productId || product.id || product._id;
 
   try {
     const payload = {
@@ -70,12 +71,13 @@ const addToCart = async (product) => {
 };
 
   // REMOVE
-  const removeFromCart = async (id) => {
+  const removeFromCart = async (id, size) => {
     const token = localStorage.getItem("token");
     if (!token) return alert("Login required");
 
     try {
-      const res = await axiosInstance.delete(`/cart/${String(id)}`);
+      // pass size as query param so backend can remove specific sized item
+      const res = await axiosInstance.delete(`/cart/${String(id)}`, { params: { size } });
       setCart((res.data.items || []).map(normalizeItem));
     } catch (err) {
       console.error("Remove error:", err.response?.data || err);
