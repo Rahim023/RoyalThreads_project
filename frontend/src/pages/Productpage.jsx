@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import PopupModal from "../components/Popupmodal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Heart, ShoppingBag, Zap } from "lucide-react";
 
 // ⭐ Currency Hook
 import { useCurrency } from "../context/CurrencyContext";
@@ -114,16 +114,19 @@ const handleCheckout = () => {
       <div className="px-6 md:px-20 py-6">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-brand-navy hover:text-brand-gold"
+          className="inline-flex items-center gap-2 text-brand-navy hover:text-brand-gold transition-colors font-semibold"
         >
-          <ArrowLeft /> Back
+          <ArrowLeft size={20} /> Back to Shopping
         </button>
       </div>
 
-      <section className="max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-10 py-8">
+      <section className="max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-12 py-8">
         
-        {/* IMAGE */}
-        <div>
+        {/* IMAGE SECTION */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
           <motion.img
             key={mainImage}
             initial={{ opacity: 0, scale: 1.02 }}
@@ -131,99 +134,151 @@ const handleCheckout = () => {
             transition={{ duration: 0.45 }}
             src={mainImage}
             alt={product.title}
-            className="w-full h-[600px] object-cover rounded-2xl shadow-lg"
+            className="w-full h-[600px] object-contain rounded-3xl shadow-2xl bg-white p-6 border-2 border-brand-gold/20"
           />
-        </div>
+        </motion.div>
 
-        {/* DETAILS */}
-        <div className="space-y-6">
-
-          <h1 className="text-4xl font-fancy text-brand-navy">{product.title}</h1>
+        {/* DETAILS SECTION */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-8"
+        >
+          {/* Title */}
+          <div>
+            <h1 className="text-4xl md:text-5xl font-serifFancy font-bold text-brand-navy mb-2">{product.title}</h1>
+            <div className="h-1 w-24 bg-gradient-to-r from-brand-gold to-brand-purple rounded-full"></div>
+          </div>
 
           {/* ⭐ CONVERTED PRICE */}
-          <div className="text-2xl font-semibold text-brand-gold">
-            {currencySymbol} {convertPrice(product.price)}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gradient-to-r from-brand-gold/20 to-brand-purple/20 p-6 rounded-2xl border border-brand-gold/30"
+          >
+            <p className="text-sm text-brand-charcoal/70 mb-2">Price</p>
+            <p className="text-4xl font-bold text-brand-gold">
+              {currencySymbol} {convertPrice(product.price)}
+            </p>
+          </motion.div>
 
-          <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-brand-charcoal leading-relaxed"
+          >
+            {product.description}
+          </motion.p>
 
           {/* STOCK + RATING */}
-          <div className="flex items-center gap-6">
-            <div className="text-sm text-gray-600">
-              Stock: <span className="font-medium">{product.stock}</span>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-3 gap-4"
+          >
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Stock</p>
+              <p className="text-2xl font-bold text-brand-navy">{product.stock}</p>
             </div>
-            <div className="text-sm text-gray-600">
-              Rating: <span className="font-medium">{product.rating}</span>
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Rating</p>
+              <p className="text-2xl font-bold text-brand-gold">⭐ {product.rating}</p>
             </div>
-            <div className="text-sm text-gray-600">
-              Reviews: <span className="font-medium">{product.reviewsCount || 0}</span>
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Reviews</p>
+              <p className="text-2xl font-bold text-brand-navy">{product.reviewsCount || 0}</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* SIZE */}
-          <div>
-            <div className="text-sm text-gray-600">Size</div>
-            <div className="mt-2 flex gap-2">
-              {(product.sizes || ["S", "M", "L"]).map((s) => (
-                <button
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <label className="text-sm font-semibold text-brand-navy mb-3 block">Select Size</label>
+            <div className="flex gap-3 flex-wrap">
+              {(product.sizes || ["S", "M", "L", "XL"]).map((s) => (
+                <motion.button
                   key={s}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedSize(s)}
-                  className={`px-3 py-2 rounded-full border ${
+                  className={`px-5 py-3 rounded-xl font-bold transition-all duration-300 border-2 ${
                     selectedSize === s
-                      ? "bg-brand-navy text-white"
-                      : "bg-white text-gray-700"
+                      ? "bg-brand-gold text-brand-navy border-brand-gold shadow-lg shadow-brand-gold/30"
+                      : "bg-white text-brand-navy border-brand-gold/30 hover:border-brand-gold"
                   }`}
                 >
                   {s}
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* QUANTITY */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <label className="text-sm font-semibold text-brand-navy mb-3 block">Quantity</label>
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="px-3 py-2 rounded bg-white"
+                className="px-4 py-3 rounded-full bg-brand-navy text-brand-ivory hover:bg-brand-purple transition font-bold"
               >
-                -
+                −
               </button>
-              <div className="px-4 py-2 bg-white rounded">{qty}</div>
+              <div className="px-8 py-3 bg-white rounded-full border-2 border-brand-gold text-center font-bold text-2xl text-brand-navy min-w-20">{qty}</div>
               <button
                 onClick={() => setQty((q) => q + 1)}
-                className="px-3 py-2 rounded bg-white"
+                className="px-4 py-3 rounded-full bg-brand-navy text-brand-ivory hover:bg-brand-purple transition font-bold"
               >
                 +
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* BUTTONS */}
-          <div className="flex flex-wrap gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="flex flex-col gap-3 pt-4"
+          >
             <button
               onClick={handleAddToCart}
-              className="px-6 py-3 rounded-full bg-brand-navy text-brand-ivory font-semibold hover:bg-brand-gold hover:text-brand-navy transition"
+              className="px-6 py-4 rounded-full bg-brand-navy text-brand-gold font-bold hover:shadow-lg hover:shadow-brand-navy/30 transition flex items-center justify-center gap-2 group"
             >
+              <ShoppingBag size={20} className="group-hover:scale-110 transition-transform" />
               Add to Cart
             </button>
 
-            <button
-              onClick={handleAddToWishlist}
-              className="px-4 py-3 rounded-full border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
-            >
-              Add to Wishlist
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddToWishlist}
+                className="flex-1 px-4 py-4 rounded-full border-2 border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition font-bold flex items-center justify-center gap-2 group"
+              >
+                <Heart size={20} className="group-hover:fill-current transition-all" />
+                Wishlist
+              </button>
 
-            <button
-              onClick={handleCheckout}
-              className="px-6 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold hover:bg-brand-navy hover:text-white transition"
-            >
-              Proceed to Checkout
-            </button>
-          </div>
+              <button
+                onClick={handleCheckout}
+                className="flex-1 px-4 py-4 rounded-full bg-brand-gold text-brand-navy font-bold hover:shadow-lg hover:shadow-brand-gold/50 transition flex items-center justify-center gap-2 group"
+              >
+                <Zap size={20} className="group-hover:rotate-12 transition-transform" />
+                Checkout
+              </button>
+            </div>
+          </motion.div>
 
-        </div>
+        </motion.div>
       </section>
 
       <PopupModal
@@ -233,8 +288,8 @@ const handleCheckout = () => {
         redirectTo={redirectTo}
       />
 
-      <footer className="py-12 text-center text-gray-600">
-        © 2025 Royal Threads
+      <footer className="py-12 text-center text-brand-charcoal/70 font-sansTrend">
+        <p className="text-sm">© 2025 Royal Threads • Premium Fashion</p>
       </footer>
     </div>
   );

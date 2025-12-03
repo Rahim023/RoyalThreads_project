@@ -2,6 +2,8 @@ import React from "react";
 import Header from "../components/Header";
 import { useCart } from "./CartContext";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Trash2, ShoppingCart, ArrowRight } from "lucide-react";
 
 // ⭐ Currency context import
 import { useCurrency } from "../context/CurrencyContext";
@@ -28,73 +30,123 @@ export default function Cart() {
       {/* 🔹 Global Header */}
       <Header />
 
-      <section className="py-16 px-6 md:px-20 flex-1 bg-brand-mist">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold text-brand-navy text-center mb-10">
-          Your Shopping Cart 🛒
-        </h1>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-brand-navy via-brand-purple to-brand-charcoal py-16 text-center border-b-4 border-brand-gold">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-center gap-3 mb-4"
+        >
+          <ShoppingCart size={40} className="text-brand-gold" />
+          <h1 className="text-4xl md:text-5xl font-serifFancy font-bold text-brand-ivory">
+            Your Shopping Cart
+          </h1>
+        </motion.div>
+        <p className="text-brand-gold/80 text-lg mt-2">Review and checkout your items</p>
+      </div>
 
+      <section className="py-16 px-6 md:px-20 flex-1 bg-brand-mist">
         {/* ✅ Empty Cart Condition */}
         {cart.length === 0 ? (
-          <p className="text-center text-brand-charcoal">
-            Your cart is empty. Start shopping now!
-          </p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-20"
+          >
+            <ShoppingCart size={80} className="mx-auto text-brand-gold/40 mb-6" />
+            <p className="text-2xl font-semibold text-brand-navy mb-6">
+              Your cart is empty
+            </p>
+            <p className="text-brand-charcoal/70 mb-8">Start shopping and add your favorite items</p>
+            <Link
+              to="/"
+              className="inline-block px-8 py-3 bg-gradient-to-r from-brand-navy to-brand-purple text-brand-gold rounded-full font-semibold hover:shadow-lg hover:shadow-brand-gold/30 transition-all"
+            >
+              Continue Shopping
+            </Link>
+          </motion.div>
         ) : (
-          <div className="max-w-4xl mx-auto bg-white shadow-luxe rounded-xl p-6">
-
+          <div className="max-w-5xl mx-auto">
             {/* ⭐ Cart Items */}
-            {cart.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between border-b py-4"
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-20 h-20 object-cover rounded-lg shadow"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-lg">{item.title}</h3>
-
-                    {/* ⭐ Converted price display */}
-                    <p className="text-brand-gold font-bold">
-                      {currencySymbol} {convertPrice(item.price)} × {item.quantity}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Remove Button */}
-                <button
-                  onClick={() => removeFromCart(item.id, item.size)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            <div className="space-y-4 mb-8">
+              {cart.map((item, idx) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="flex items-center justify-between bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border border-brand-gold/20 hover:border-brand-gold"
                 >
-                  Remove
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-6 flex-1">
+                    <div className="relative group">
+                      <img
+                        src={item.img}
+                        alt={item.title}
+                        className="w-24 h-24 object-cover rounded-xl shadow-md group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-brand-navy font-serifFancy">{item.title}</h3>
+                      {item.size && (
+                        <p className="text-sm text-brand-charcoal/70">Size: <span className="font-semibold text-brand-gold">{item.size}</span></p>
+                      )}
+                      <p className="text-brand-gold font-bold text-lg mt-2">
+                        {currencySymbol} {convertPrice(item.price)} × {item.quantity} = {currencySymbol} {(convertPrice(item.price) * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeFromCart(item.id, item.size)}
+                    className="p-3 bg-red-100 text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all duration-300 ml-4"
+                    title="Remove from cart"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </motion.div>
+              ))}
+            </div>
 
             {/* ⭐ Cart Summary */}
-            <div className="flex justify-between items-center mt-6">
-              <h2 className="text-xl font-bold">
-                Total: {currencySymbol} {totalConverted}
-              </h2>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={clearCart}
-                  className="px-5 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-                >
-                  Clear Cart
-                </button>
-
-                <Link
-                  to="/checkout"
-                  className="px-6 py-2 bg-brand-gold text-brand-navy font-semibold rounded-lg shadow hover:bg-brand-ivory hover:text-brand-navy transition"
-                >
-                  Proceed to Checkout
-                </Link>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-brand-navy to-brand-purple rounded-2xl p-8 text-brand-ivory shadow-xl mb-8"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-lg">Subtotal:</span>
+                <span className="text-2xl font-bold text-brand-gold">{currencySymbol} {totalConverted}</span>
               </div>
-            </div>
+              <div className="border-t border-brand-gold/30 pt-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg">Total Items:</span>
+                  <span className="text-xl font-semibold">{cart.length} item{cart.length > 1 ? 's' : ''}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold font-serifFancy">
+                  Total: {currencySymbol} {totalConverted}
+                </h2>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={clearCart}
+                    className="px-6 py-3 bg-brand-charcoal/20 text-brand-ivory rounded-full hover:bg-red-600 transition-all font-semibold"
+                  >
+                    Clear Cart
+                  </button>
+
+                  <Link
+                    to="/checkout"
+                    className="px-8 py-3 bg-brand-gold text-brand-navy font-bold rounded-full hover:shadow-lg hover:shadow-brand-gold/50 transition-all flex items-center gap-2 group"
+                  >
+                    Proceed to Checkout
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
           </div>
         )}
       </section>

@@ -2,15 +2,19 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Package, Clock, CheckCircle, AlertCircle, Trash2, XCircle, MapPin, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderStatus() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCancel, setShowCancel] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
 
   const { currencySymbol, convertPrice } = useCurrency();
+  const navigate = useNavigate();
   const orderId = localStorage.getItem("lastOrderId");
 
   const cancellationReasons = [
@@ -73,9 +77,12 @@ export default function OrderStatus() {
         }
       );
 
-      const updated = await res.json();
-      setOrder(updated);
-      setShowCancel(false);
+      if (res.ok) {
+        const updated = await res.json();
+        setOrder(updated);
+        setShowCancel(false);
+        setCancelReason("");
+      }
     } catch (err) {
       console.error("Cancel failed:", err);
     }
@@ -86,13 +93,17 @@ export default function OrderStatus() {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch(`http://localhost:5000/api/orders/${order._id}`, {
+      const res = await fetch(`http://localhost:5000/api/orders/${order._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      localStorage.removeItem("lastOrderId");
-      setOrder(null);
+      if (res.ok) {
+        localStorage.removeItem("lastOrderId");
+        setOrder(null);
+        setShowDeleteConfirm(false);
+        navigate("/");
+      }
     } catch (err) {
       console.error("Delete failed:", err);
     }
@@ -118,7 +129,13 @@ export default function OrderStatus() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-brand-mist">
         <Header />
-        <div className="text-brand-navy mt-20 text-xl">Loading order...</div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="mt-20 text-brand-navy"
+        >
+          <Package size={48} />
+        </motion.div>
       </div>
     );
   }
@@ -127,198 +144,449 @@ export default function OrderStatus() {
     return (
       <div className="min-h-screen bg-brand-mist">
         <Header />
-        <div className="text-center py-40 text-lg text-brand-navy font-semibold">
-          No order found. Please place an order first.
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-40"
+        >
+          <AlertCircle size={60} className="text-brand-gold/50 mx-auto mb-4" />
+          <p className="text-lg text-brand-navy font-semibold mb-6">
+            No order found. Please place an order first.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate("/")}
+            className="px-8 py-3 bg-brand-navy text-brand-ivory rounded-full font-bold hover:shadow-lg transition"
+          >
+            Continue Shopping
+          </motion.button>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-brand-ivory to-brand-mist font-sansTrend">
+    <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
-      <section className="px-6 md:px-20 py-16">
-        <h1 className="text-center text-4xl md:text-5xl font-sansTrend font-bold text-brand-navy mb-12">
-          Order Status
-        </h1>
+      {/* LUXURY HERO SECTION */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative bg-gradient-to-br from-brand-navy via-brand-purple to-brand-navy py-20 overflow-hidden"
+      >
+        {/* Decorative elements */}
+        <div className="absolute inset-0">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-10 right-10 w-40 h-40 border-2 border-brand-gold/10 rounded-full"
+          />
+        </div>
 
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-brand-gold/30 p-10">
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-20 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="mb-4 inline-flex items-center justify-center"
+          >
+            <Package size={40} className="text-brand-gold" />
+          </motion.div>
 
-          {/* ⭐ CANCELLED BANNER */}
-          {order.status === "Cancelled" && (
-            <div className="bg-red-100 text-red-700 p-4 rounded-xl border border-red-300 mb-6">
-              ❌ <b>Your order was cancelled</b>
-              <div>Reason: {order.cancelledReason}</div>
-              <div>Time: {new Date(order.cancelledAt).toLocaleString()}</div>
-            </div>
-          )}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-5xl md:text-6xl font-serifFancy font-bold text-brand-ivory tracking-wide"
+          >
+            Order Status
+          </motion.h1>
 
-          {/* ⭐ Header */}
-          <div className="pb-6 border-b border-brand-gold/40 mb-10">
-            <h2 className="text-2xl font-bold text-brand-navy">
-              Order ID:
-              <span className="text-brand-gold ml-2">{order._id}</span>
-            </h2>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-brand-ivory/80 mt-4 text-lg"
+          >
+            Track your delivery in real-time
+          </motion.p>
 
-            <p className="text-lg mt-2 text-brand-charcoal">
-              Status:{" "}
-              <span className="text-brand-gold font-semibold">
-                {order.status}
-              </span>
-            </p>
-
-            {order.status !== "Cancelled" && (
+          {/* Status Badge */}
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className={`inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full font-bold text-sm ${
+              order.status === "Cancelled"
+                ? "bg-red-500/20 text-red-300 border border-red-400"
+                : "bg-brand-gold/20 text-brand-gold border border-brand-gold"
+            }`}
+          >
+            {order.status === "Cancelled" ? (
               <>
-                <p className="text-brand-navy mt-2">
-                  📍 <b>Location:</b> Toronto Dispatch Centre
-                </p>
-                <p className="text-brand-navy mt-1">
-                  🚚 <b>Est. Delivery:</b>{" "}
-                  <span className="text-brand-gold">February 5, 2025</span>
-                </p>
+                <XCircle size={16} /> {order.status}
+              </>
+            ) : order.status === "Delivered" ? (
+              <>
+                <CheckCircle size={16} /> {order.status}
+              </>
+            ) : (
+              <>
+                <Clock size={16} /> {order.status}
               </>
             )}
-          </div>
+          </motion.div>
+        </div>
+      </motion.div>
 
-          {/* ⭐ Progress Bar */}
-          <h3 className="text-xl font-bold text-brand-navy mb-4">
-            Delivery Progress
-          </h3>
+      <section className="px-6 md:px-20 py-16 max-w-6xl mx-auto">
 
-          <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-4">
+        {/* CANCELLED BANNER */}
+        <AnimatePresence>
+          {order.status === "Cancelled" && (
             <motion.div
-              className={`h-full ${
-                order.status === "Cancelled"
-                  ? "bg-red-500"
-                  : "bg-brand-gold"
-              }`}
-              initial={{ width: 0 }}
-              animate={{ width: progressWidth() }}
-              transition={{ duration: 1 }}
-            />
-          </div>
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-8 p-6 bg-gradient-to-r from-red-500/10 to-red-600/10 rounded-2xl border-2 border-red-400/50 backdrop-blur-sm"
+            >
+              <div className="flex items-start gap-4">
+                <XCircle size={24} className="text-red-500 flex-shrink-0 mt-1" />
+                <div>
+                  <p className="text-red-600 font-bold text-lg mb-2">
+                    Order Cancelled
+                  </p>
+                  <p className="text-red-500/80 text-sm">
+                    <b>Reason:</b> {order.cancelledReason}
+                  </p>
+                  <p className="text-red-500/80 text-sm">
+                    <b>Cancelled At:</b> {new Date(order.cancelledAt).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <div className="flex justify-between text-sm text-gray-600 mb-10">
-            {["Ordered", "Processing", "Shipped", "Out for Delivery", "Delivered"].map(
-              (step) => (
-                <span
-                  key={step}
-                  className={
-                    order.status === step
-                      ? "text-brand-gold font-bold"
-                      : "text-gray-500"
-                  }
-                >
-                  {step}
-                </span>
-              )
+        {/* ORDER HEADER CARD */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-3xl shadow-xl border-2 border-brand-gold/20 p-8 mb-8"
+        >
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Order ID */}
+            <div className="border-r border-brand-gold/20 pr-6">
+              <p className="text-sm text-brand-charcoal/70 mb-2">Order ID</p>
+              <p className="text-2xl font-bold text-brand-navy font-mono">
+                {order._id.slice(-8).toUpperCase()}
+              </p>
+            </div>
+
+            {/* Order Date */}
+            {order.status !== "Cancelled" && (
+              <div className="border-r border-brand-gold/20 pr-6">
+                <p className="text-sm text-brand-charcoal/70 mb-2 flex items-center gap-2">
+                  <Calendar size={16} /> Order Date
+                </p>
+                <p className="text-lg font-semibold text-brand-navy">
+                  {new Date(order.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            )}
+
+            {/* Estimated Delivery */}
+            {order.status !== "Cancelled" && !["Cancelled"].includes(order.status) && (
+              <div>
+                <p className="text-sm text-brand-charcoal/70 mb-2 flex items-center gap-2">
+                  <MapPin size={16} /> Est. Delivery
+                </p>
+                <p className="text-lg font-semibold text-brand-gold">
+                  February 5, 2025
+                </p>
+              </div>
             )}
           </div>
+        </motion.div>
 
-          {/* ⭐ Order Items */}
-          <h3 className="text-xl font-semibold text-brand-navy mb-4">Items</h3>
+        {/* PROGRESS TRACKER */}
+        {order.status !== "Cancelled" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-3xl shadow-xl border-2 border-brand-gold/20 p-8 mb-8"
+          >
+            <h3 className="text-2xl font-bold text-brand-navy mb-8">Delivery Progress</h3>
+
+            {/* Progress Bar */}
+            <div className="mb-8">
+              <div className="h-2 bg-brand-mist rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-brand-gold to-brand-purple"
+                  initial={{ width: 0 }}
+                  animate={{ width: progressWidth() }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+
+            {/* Status Steps */}
+            <div className="grid grid-cols-5 gap-2">
+              {["Ordered", "Processing", "Shipped", "Out for Delivery", "Delivered"].map(
+                (step, idx) => (
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className={`text-center p-3 rounded-2xl transition-all ${
+                      ["Ordered", "Processing", "Shipped", "Out for Delivery", "Delivered"]
+                        .indexOf(order.status) >= idx
+                        ? "bg-brand-gold/20 border-2 border-brand-gold text-brand-gold"
+                        : "bg-brand-mist border-2 border-brand-mist/30 text-brand-charcoal/50"
+                    }`}
+                  >
+                    <p className="text-xs font-bold">{step}</p>
+                  </motion.div>
+                )
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ORDER ITEMS */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-3xl shadow-xl border-2 border-brand-gold/20 p-8 mb-8"
+        >
+          <h3 className="text-2xl font-bold text-brand-navy mb-6">Order Items</h3>
 
           <div className="space-y-4">
             {order.items.map((item, index) => (
               <motion.div
                 key={index}
-                whileHover={{ scale: 1.02 }}
-                className="flex justify-between items-center bg-white p-4 rounded-xl shadow border border-gray-200"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+                whileHover={{ x: 4 }}
+                className="flex items-center justify-between p-5 bg-gradient-to-r from-brand-mist to-brand-ivory rounded-2xl border border-brand-gold/20 hover:border-brand-gold/40 transition"
               >
-                <div className="font-semibold text-brand-navy">
-                  {item.title}
+                <div className="flex-1">
+                  <p className="font-bold text-brand-navy text-lg">{item.title}</p>
+                  <p className="text-sm text-brand-charcoal/60">
+                    Quantity: <span className="font-semibold">{item.quantity}</span>
+                  </p>
                 </div>
 
-                <div className="font-bold text-brand-gold">
-                  {currencySymbol}
-                  {convertPrice(item.price)} × {item.quantity}
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-brand-gold">
+                    {currencySymbol}
+                    {convertPrice(item.price)}
+                  </p>
+                  <p className="text-xs text-brand-charcoal/60">
+                    × {item.quantity}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* ⭐ Total */}
-          <div className="text-right mt-10">
-            <h3 className="text-2xl font-bold text-brand-navy">
-              Total:{" "}
-              <span className="text-brand-gold">
+          {/* ORDER TOTAL */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 p-6 bg-gradient-to-r from-brand-gold/10 to-brand-purple/10 rounded-2xl border-2 border-brand-gold/30"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-bold text-brand-navy">Total Amount</p>
+              <p className="text-4xl font-bold text-brand-gold">
                 {currencySymbol}
                 {convertPrice(order.totalINR)}
-              </span>
-            </h3>
-          </div>
+              </p>
+            </div>
+          </motion.div>
+        </motion.div>
 
-          {/* ⭐ Buttons */}
-          <div className="mt-12 flex justify-between">
+        {/* ACTION BUTTONS */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="flex flex-col sm:flex-row gap-4"
+        >
+          {/* Cancel Button - Only if order is NOT cancelled and NOT shipped */}
+          {order.status !== "Cancelled" &&
+            !["Shipped", "Out for Delivery", "Delivered"].includes(order.status) && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowCancel(true)}
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-red-500/30 transition flex items-center justify-center gap-2"
+              >
+                <XCircle size={20} /> Cancel Order
+              </motion.button>
+            )}
 
-            {/* Cancel Button */}
-            {order.status !== "Cancelled" &&
-              !["Shipped", "Out for Delivery", "Delivered"].includes(
-                order.status
-              ) && (
-                <button
-                  onClick={() => setShowCancel(true)}
-                  className="px-6 py-3 bg-red-600 text-white rounded-xl shadow hover:bg-red-700"
-                >
-                  Cancel Order
-                </button>
-              )}
-
-            {/* Delete Button */}
-            <button
-              onClick={handleDeleteOrder}
-              className="px-6 py-3 bg-gray-400 text-white rounded-xl shadow hover:bg-gray-500"
+          {/* Delete Order History - Only appears AFTER cancellation */}
+          {order.status === "Cancelled" && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex-1 px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-red-600/30 transition flex items-center justify-center gap-2"
             >
-              Delete Order
-            </button>
-          </div>
-        </div>
+              <Trash2 size={20} /> Delete Order History
+            </motion.button>
+          )}
+
+          {/* Back to Shopping */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/")}
+            className="flex-1 px-6 py-4 bg-gradient-to-r from-brand-gold to-brand-purple text-brand-navy rounded-2xl font-bold hover:shadow-lg hover:shadow-brand-gold/30 transition"
+          >
+            Continue Shopping
+          </motion.button>
+        </motion.div>
       </section>
 
-      {/* ⭐ Cancel Modal */}
-      {showCancel && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md">
-            <h2 className="text-2xl font-bold text-brand-navy mb-4">
-              Cancel Order
-            </h2>
-
-            <p>Select a reason:</p>
-
-            <select
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              className="w-full p-3 border rounded-xl mt-3 mb-6"
+      {/* CANCEL MODAL */}
+      <AnimatePresence>
+        {showCancel && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border-2 border-brand-gold/20"
             >
-              <option value="">-- Choose Reason --</option>
-              {cancellationReasons.map((reason) => (
-                <option key={reason}>{reason}</option>
-              ))}
-            </select>
+              <div className="flex items-center gap-3 mb-6">
+                <AlertCircle size={28} className="text-red-500" />
+                <h2 className="text-2xl font-bold text-brand-navy">Cancel Order</h2>
+              </div>
 
-            <div className="flex justify-between">
-              <button
-                onClick={() => setShowCancel(false)}
-                className="px-4 py-2 rounded-xl bg-gray-300"
+              <p className="text-brand-charcoal mb-6">
+                Please select a reason for cancellation:
+              </p>
+
+              <select
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="w-full p-3 border-2 border-brand-gold/30 rounded-xl mb-6 focus:outline-none focus:border-brand-gold text-brand-navy font-medium"
               >
-                Close
-              </button>
+                <option value="">-- Select Reason --</option>
+                {cancellationReasons.map((reason) => (
+                  <option key={reason} value={reason}>
+                    {reason}
+                  </option>
+                ))}
+              </select>
 
-              <button
-                onClick={handleCancelOrder}
-                className="px-4 py-2 rounded-xl bg-red-600 text-white shadow hover:bg-red-700"
-              >
-                Confirm Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowCancel(false)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-brand-mist text-brand-navy font-bold border-2 border-brand-mist hover:bg-brand-mist/70 transition"
+                >
+                  Close
+                </motion.button>
 
-      <footer className="bg-brand-navy text-brand-ivory text-center py-6 mt-20">
-        © 2025 RoyalThreads. All Rights Reserved.
-      </footer>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCancelOrder}
+                  disabled={!cancelReason}
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold hover:shadow-lg hover:shadow-red-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <CheckCircle size={18} /> Confirm
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* DELETE ORDER CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border-2 border-red-500/20"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <AlertCircle size={28} className="text-red-600" />
+                <h2 className="text-2xl font-bold text-brand-navy">Delete Order History?</h2>
+              </div>
+
+              <p className="text-brand-charcoal mb-2">
+                Are you sure you want to permanently delete this order from your history?
+              </p>
+              <p className="text-sm text-brand-charcoal/60 mb-6">
+                This action cannot be undone.
+              </p>
+
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-brand-mist text-brand-navy font-bold border-2 border-brand-mist hover:bg-brand-mist/70 transition"
+                >
+                  Cancel
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleDeleteOrder}
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold hover:shadow-lg hover:shadow-red-600/30 transition flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} /> Delete
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FOOTER */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="bg-brand-navy text-brand-ivory py-8 text-center mt-12 border-t-2 border-brand-gold/30"
+      >
+        <p className="text-sm font-sansTrend">
+          © 2025 Royal Threads • Premium Fashion • Fast & Secure Delivery
+        </p>
+      </motion.footer>
     </div>
   );
 }
