@@ -1,5 +1,6 @@
 import Wishlist from "../models/Wishlist.js";
 import Product from "../models/Products.js";
+import Signature from "../models/Signature.js";
 
 /**
  * Helper: Format wishlist items for frontend
@@ -72,10 +73,16 @@ export const addToWishlist = async (req, res) => {
       });
     }
 
-    // Find product by string _id using native query to avoid ObjectId casting
-    const product = await Product.collection.findOne({ _id: String(productId) });
+    // Find product by string _id using native query - check BOTH Product and Signature collections
+    let product = await Product.collection.findOne({ _id: String(productId) });
+    
     if (!product) {
-      console.error("❌ [addToWishlist] Product not found for ID:", productId);
+      // Try Signature collection if not found in Product
+      product = await Signature.collection.findOne({ _id: String(productId) });
+    }
+    
+    if (!product) {
+      console.error("❌ [addToWishlist] Product not found in Product or Signature collection for ID:", productId);
       return res.status(404).json({ 
         success: false,
         message: "❌ Product not found in database" 

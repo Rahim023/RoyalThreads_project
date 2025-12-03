@@ -2,27 +2,45 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Header from "../components/Header";
-import { LucideArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
+import ProductCard from "../components/ProductCard";
 
 export default function Discover() {
   const [spotlight, setSpotlight] = useState([]);
-  const [tiles, setTiles] = useState([]);
+  const [discoverProducts, setDiscoverProducts] = useState([]);
+  const [signatures, setSignatures] = useState([]);
   const [autoIndex, setAutoIndex] = useState(0);
+  const [navOpen, setNavOpen] = useState(false);
 
-  // Fetch data from backend
+  const navigate = useNavigate();
+
+  // Fetch signatures and discover products
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/discover");
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        const data = await res.json();
-        setSpotlight(data.spotlight || []);
-        setTiles(data.tiles || []);
+        // Discover products (flagged in DB)
+        const pRes = await api.get("/products?discover=true");
+        setDiscoverProducts(Array.isArray(pRes.data) ? pRes.data : []);
+
+        // Signatures
+        const sRes = await api.get("/signatures");
+        setSignatures(Array.isArray(sRes.data) ? sRes.data : []);
+
+        // Use first few signatures as spotlight images if available
+        const sp = (sRes.data || []).slice(0, 4).map((s) => ({
+          id: s._id || s.id || s.slug,
+          img: s.img || s.image || "/images/signature-placeholder.jpg",
+          title: s.title || s.name || s.slug || "Signature",
+        }));
+        setSpotlight(sp);
       } catch (err) {
-        console.error("Error fetching discover data:", err);
+        console.error("Discover fetch error:", err);
       }
     };
-    fetchData();
+
+    fetchAll();
   }, []);
 
   // Auto slide spotlight cards
@@ -30,12 +48,26 @@ export default function Discover() {
     if (spotlight.length === 0) return;
     const interval = setInterval(() => {
       setAutoIndex((i) => (i + 1) % spotlight.length);
-    }, 2500);
+    }, 3000);
     return () => clearInterval(interval);
   }, [spotlight]);
 
   const { scrollY } = useScroll();
   const parallaxY = useTransform(scrollY, [0, 300], [0, -60]);
+
+  const pages = [
+    { name: "Home", to: "/" },
+    { name: "Men", to: "/men" },
+    { name: "Women", to: "/women" },
+    { name: "Wedding", to: "/wedding" },
+    { name: "Signature", to: "/signature" },
+    { name: "Discover", to: "/discover" },
+    { name: "Cart", to: "/cart" },
+    { name: "Wishlist", to: "/wishlist" },
+    { name: "Accessories", to: "/accessories" },
+    { name: "Jewelry", to: "/jewelry" },
+    { name: "Checkout", to: "/checkout" },
+  ];
 
   return (
     <div className="min-h-screen bg-brand-mist font-sansTrend">
@@ -45,51 +77,56 @@ export default function Discover() {
       <section className="relative pt-2 pb-20 md:px-2 text-center">
         <motion.img
           style={{ y: parallaxY }}
-          src="https://picsum.photos/1600/600?random=30"
+          src={spotlight[autoIndex]?.img || "https://picsum.photos/1600/600?random=30"}
           className="w-full h-[380px] md:h-[460px] object-cover rounded-3xl shadow-xl"
         />
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-10 text-6xl md:text-6xl font-sansTrend font-semibold tracking-tight text-gray-900"
+          className="mt-10 text-5xl md:text-6xl font-sansTrend font-semibold tracking-tight text-gray-900"
         >
           Discover the <span className="text-brand-gold">Edit</span>
         </motion.h1>
         <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg font-sansTrend">
-          A curated showcase of stories, trends, and premium craftsmanship —
-          reimagined in a modern luxury format.
+          A curated showcase of stories, trends, and premium craftsmanship — reimagined for modern wear.
         </p>
       </section>
 
-      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
+      <div className="w-full h-[6px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* SPOTLIGHT AUTO SLIDER */}
-      <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-14 bg-gradient-to-b from-mist to-brand-white">
-        {/* LEFT TEXT */}
-        <div className="flex-1 space-y-4">
-          <h2 className="text-xl md:text-6xl font-fancy leading-tight">
-            Premium <span className="text-brand-gold">Spotlight</span>
+      {/* SPOTLIGHT AUTO SLIDER (Signature Highlights) */}
+      <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-12 bg-gradient-to-b from-mist to-brand-white">
+        <div className="flex-1 space-y-4 text-left">
+          <h2 className="text-xl md:text-4xl font-fancy leading-tight">
+            Signature <span className="text-brand-gold">Highlights</span>
           </h2>
-          <p className="text-gray-600 max-w-md font-sansTrend text-lg">
-            Inspired by global runway trends and handcrafted traditions.
+          <p className="text-gray-600 max-w-md font-sansTrend text-base">
+            Handpicked signature pieces and editor favorites from our latest drops.
           </p>
-          <div className="h-1 w-32 bg-brand-gold/40 rounded-full"></div>
+          <div className="h-1 w-24 bg-brand-gold/40 rounded-full"></div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/signature")}
+              className="px-4 py-2 rounded-md bg-brand-navy text-white"
+            >
+              View All Signature
+            </button>
+            <Link to="/signature-series" className="text-sm text-gray-700 hover:text-brand-gold flex items-center gap-2">
+              Explore Series <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
 
-        {/* RIGHT AUTO SLIDER */}
-        <div className="flex-1 h-[350px] relative">
+        <div className="flex-1 h-[340px] relative">
           {spotlight.map((s, i) => (
             <motion.div
               key={s.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{
-                opacity: i === autoIndex ? 1 : 0,
-                scale: i === autoIndex ? 1 : 0.95,
-              }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: i === autoIndex ? 1 : 0, scale: i === autoIndex ? 1 : 0.98 }}
               transition={{ duration: 0.6 }}
-              className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-white"
+              className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl bg-white"
             >
-              <img src={s.img} className="w-full h-full object-cover" />
+              <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
               <div className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-xl">
                 {s.title}
               </div>
@@ -98,47 +135,79 @@ export default function Discover() {
         </div>
       </section>
 
-      <div className="w-full h-[8px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
+      <div className="w-full h-[6px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
 
-      {/* CURATED COLLECTIONS */}
-      <section className="px-6 md:px-20 pb-24 text-center">
-        <motion.h3
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-6xl font-fancy pt-10 text-brand-gold"
-        >
-          Curated <span className="text-brand-maroon">Selections</span>
-        </motion.h3>
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="mt-2 text-gray-600 text-lg max-w-lg mx-auto font-sansTrend"
-        >
-          Explore handpicked pieces showcasing the finest craftsmanship and trending styles.
-        </motion.p>
-        <div className="h-1 w-32 bg-brand-maroon/40 mb-12 mt-4 mx-auto rounded-full"></div>
+      {/* DISCOVER PRODUCT GRID */}
+      <section className="px-6 md:px-20 pb-24">
+        <h3 className="text-3xl md:text-4xl font-sansTrend font-semibold mb-6">Discover Picks</h3>
+        <p className="text-gray-600 mb-8">Curated items chosen for their craftsmanship and modern appeal.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {tiles.map((c) => (
-            <motion.div
-              key={c.id}
-              whileHover={{ scale: 1.05 }}
-              className="relative overflow-hidden rounded-3xl shadow-xl bg-white/50 backdrop-blur-lg cursor-pointer"
+        {discoverProducts.length === 0 ? (
+          <p className="text-gray-500">No discover picks available right now.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {discoverProducts.map((p) => (
+              <ProductCard key={p.id || p._id} product={p} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* SIGNATURE PREVIEW ROW */}
+      <section className="px-6 md:px-20 pb-24">
+        <div className="flex items-center justify-between mb-6">
+          <h4 className="text-2xl font-semibold">Signature Preview</h4>
+          <Link to="/signature" className="text-sm text-brand-gold">See all</Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {signatures.slice(0, 6).map((s) => (
+            <div
+              key={s._id || s.id}
+              onClick={() => navigate(`/signature/${s.slug || s._id}`)}
+              className="cursor-pointer rounded-xl overflow-hidden bg-white shadow hover:scale-105 transition"
             >
-              <img src={c.img} className="h-72 w-full object-cover" />
-              <div className="absolute inset-0 bg-black/20"></div>
-              <motion.div
-                whileHover={{ x: 5 }}
-                className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-lg flex items-center gap-2"
-              >
-                {c.title} <LucideArrowRight size={20} />
-              </motion.div>
-            </motion.div>
+              <img src={s.img || s.image || "/images/signature-placeholder.jpg"} className="w-full h-56 object-cover" />
+              <div className="p-3">
+                <h5 className="font-semibold">{s.title || s.name || s.slug}</h5>
+                <p className="text-sm text-gray-600 mt-1">{s.subtitle || s.description || "Signature piece"}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
+
+      {/* COMPACT NAV DRAWER (does not alter layout) */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => setNavOpen((v) => !v)}
+          className="bg-brand-navy text-white rounded-full p-3 shadow-lg hover:scale-105 transition"
+          aria-label="Open navigation"
+        >
+          ☰
+        </button>
+
+        {navOpen && (
+          <div className="mt-3 w-64 bg-white rounded-xl shadow-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <strong className="text-sm">Quick Navigation</strong>
+              <button onClick={() => setNavOpen(false)} className="text-gray-500">✕</button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {pages.map((pg) => (
+                <Link
+                  key={pg.to}
+                  to={pg.to}
+                  onClick={() => setNavOpen(false)}
+                  className="text-sm p-2 rounded hover:bg-brand-mist/60"
+                >
+                  {pg.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* CRAFT TIMELINE */}
       <section className="px-6 md:px-20 pb-24">
@@ -170,7 +239,7 @@ export default function Discover() {
       </section>
 
       <footer className="py-12 text-center text-gray-600 font-sansTrend">
-        © 2025 MyClothing — Crafted With Precision
+        © 2025 Royal Threads — Crafted With Precision
       </footer>
     </div>
   );

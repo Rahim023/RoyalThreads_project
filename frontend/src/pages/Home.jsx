@@ -9,6 +9,8 @@ import ShinyText from "../components/ShinyText";
 import ProductCard from "../components/ProductCard";
 import CircularGallery from "../components/CircularGallery";
 import Silk from "../components/Silk";
+import CollectionSlideshow from "../components/CollectionSlideshow";
+import { collectionData } from "../data/collectionImages";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -123,125 +125,65 @@ export default function Home() {
 
       <div className="w-full h-[10px] bg-gradient-to-r from-transparent via-brand-gold to-transparent mt-8"></div>
 
-      {/* COLLECTIONS */}
-      <section id="collections" className="relative py-10">
-        <div className="relative flex w-full h-[65vh] md:h-[90vh] overflow-hidden rounded-3xl shadow-2xl">
+      {/* COLLECTIONS SLIDESHOW - Women & Men */}
+      <section id="collections" className="relative py-12 px-4 md:px-8">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12 text-4xl md:text-6xl font-serifFancy text-brand-navy"
+        >
+          Our Collections
+        </motion.h2>
 
-          {/* Women */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: -60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            className="w-1/2 h-full relative cursor-pointer"
-            onClick={() => navigate("/women")}
-          >
-            <img
-              src="https://picsum.photos/id/1011/1200/800"
-              className="w-full h-full object-cover brightness-[0.85]"
-              alt="Women Fashion"
-            />
-            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
-            font-serifFancy text-white drop-shadow-2xl">
-              Explore Women’s Fashion
-            </p>
-          </motion.div>
-
-          {/* Men */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            className="w-1/2 h-full relative cursor-pointer"
-            onClick={() => navigate("/men")}
-          >
-            <img
-              src="https://picsum.photos/id/1012/1200/800"
-              className="w-full h-full object-cover brightness-[0.85]"
-              alt="Men Fashion"
-            />
-            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
-            font-serifFancy text-white drop-shadow-2xl">
-              Explore Men’s Fashion
-            </p>
-          </motion.div>
-
-          {/* Center Title */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
-          >
-            <h2 className="text-5xl md:text-6xl font-serifFancy text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.7)]">
-              Destination: Cozy
-            </h2>
-            <p className="mt-3 text-xl md:text-2xl text-white/90 font-light drop-shadow-lg">
-              Your curated style experience awaits
-            </p>
-          </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {collectionData.slice(0, 2).map((collection, idx) => (
+            <motion.div
+              key={collection.id}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: idx * 0.2 }}
+            >
+              <CollectionSlideshow
+                images={collection.images}
+                title={collection.title}
+                link={collection.link}
+                autoPlay={true}
+                interval={4000}
+              />
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* Explore More */}
-      <section id="explore-more" className="relative py-12">
-        <div className="relative flex w-full h-[65vh] md:h-[90vh] overflow-hidden rounded-3xl shadow-2xl">
+      {/* Signature & Wedding Collections */}
+      <section id="explore-more" className="relative py-12 px-4 md:px-8">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12 text-4xl md:text-6xl font-serifFancy text-brand-navy"
+        >
+          Exclusive Collections
+        </motion.h2>
 
-          {/* Signature */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: -60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            className="w-1/2 h-full relative cursor-pointer"
-            onClick={() => navigate("/signature")}
-          >
-            <img
-              src="https://picsum.photos/id/1015/1200/800"
-              className="w-full h-full object-cover brightness-[0.85]"
-              alt="Signature Collection"
-            />
-            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
-            font-serifFancy text-white drop-shadow-2xl">
-              Explore Signature
-            </p>
-          </motion.div>
-
-          {/* Kids */}
-          <motion.div
-            whileHover={{ scale: 1.03 }}
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1 }}
-            className="w-1/2 h-full relative cursor-pointer"
-            onClick={() => navigate("/kids")}
-          >
-            <img
-              src="https://picsum.photos/id/1016/1200/800"
-              className="w-full h-full object-cover brightness-[0.85]"
-              alt="Kids Collection"
-            />
-            <p className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-3xl md:text-4xl 
-            font-serifFancy text-white drop-shadow-2xl">
-              Explore Kids
-            </p>
-          </motion.div>
-
-          {/* Center Title */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
-          >
-            <h2 className="text-5xl md:text-6xl font-serifFancy text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.7)]">
-              Explore More
-            </h2>
-            <p className="mt-3 text-xl md:text-2xl text-white/90 font-light drop-shadow-lg">
-              Discover our exclusive collections
-            </p>
-          </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {collectionData.slice(2, 4).map((collection, idx) => (
+            <motion.div
+              key={collection.id}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: idx * 0.2 }}
+            >
+              <CollectionSlideshow
+                images={collection.images}
+                title={collection.title}
+                link={collection.link}
+                autoPlay={true}
+                interval={4000}
+              />
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -368,7 +310,7 @@ export default function Home() {
         </div>
 
         <p className="text-center text-xs mt-10 opacity-80">
-          © 2025 MyClothing. All rights reserved.
+          © 2025 Royal Threads. All rights reserved.
         </p>
       </footer>
     </div>

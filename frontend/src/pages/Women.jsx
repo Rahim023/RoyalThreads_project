@@ -313,7 +313,7 @@ export default function Women() {
           <input
             type="email"
             placeholder="Enter your email"
-            className="p-3 rounded-lg w-64 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold font-sansTrend"
+            className="p-3 rounded-lg w-6a4 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold font-sansTrend"
           />
           <button className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-sansTrend font-semibold hover:bg-brand-ivory hover:text-brand-navy transition">
             Subscribe
