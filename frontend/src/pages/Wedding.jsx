@@ -28,9 +28,9 @@ export default function Wedding() {
     country === "Canada" ? "CA$" : country === "USA" ? "US$" : "₹";
 
   const heroImages = [
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding_homepage/wed_hero1.jpg",
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding_homepage/wed_hero2.jpg",
-    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding_homepage/wed_hero3.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding+homepage/wed_1.jpg",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding+homepage/wedding_2.webp",
+    "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding+homepage/wedding_4.jpg",
   ];
 
   // Hero auto-rotation
@@ -133,7 +133,7 @@ export default function Wedding() {
             className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0 }}
             animate={{ opacity: currentHero === idx ? 1 : 0 }}
-            transition={{ duration: 1.4 }}
+            transition={{ duration: 1.4, ease: "easeIn" }}
           />
         ))}
 

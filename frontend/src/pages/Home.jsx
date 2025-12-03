@@ -184,6 +184,7 @@ export default function Home() {
                 autoPlay={true}
                 interval={4000}
               />
+              
             </motion.div>
           ))}
         </div>

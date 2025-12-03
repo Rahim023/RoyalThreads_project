@@ -30,12 +30,26 @@ export default function ProductPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
-        const res = await fetch(`http://localhost:5000/api/products/${id}`);
-        if (!res.ok) return console.error("Product fetch failed:", res.status);
+        // First try to fetch from products endpoint
+        let res = await fetch(`http://localhost:5000/api/products/${id}`);
+        let data = null;
 
-        const data = await res.json();
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          // If not found in products, try signatures endpoint
+          res = await fetch(`http://localhost:5000/api/signatures/${id}`);
+          if (res.ok) {
+            data = await res.json();
+          }
+        }
+
+        if (!data) {
+          console.error("Product not found in either collection");
+          return;
+        }
+
         setProduct(data);
-
         setMainImage(data.img);
         setSelectedSize(data.sizes?.[0] || "");
       } catch (err) {
