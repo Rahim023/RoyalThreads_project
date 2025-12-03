@@ -1,6 +1,7 @@
 import Wishlist from "../models/Wishlist.js";
 import Product from "../models/Products.js";
 import Signature from "../models/Signature.js";
+import mongoose from "mongoose";
 
 /**
  * Helper: Format wishlist items for frontend
@@ -74,15 +75,37 @@ export const addToWishlist = async (req, res) => {
     }
 
     // Find product by string _id using native query - check BOTH Product and Signature collections
-    let product = await Product.collection.findOne({ _id: String(productId) });
+    // Try to convert to ObjectId if valid MongoDB ID
+    let searchId = productId;
+    try {
+      if (mongoose.Types.ObjectId.isValid(productId)) {
+        searchId = new mongoose.Types.ObjectId(productId);
+      }
+    } catch (e) {
+      console.log("⚠️ Could not convert to ObjectId, using string:", productId);
+    }
+
+    console.log("🔍 Searching for product with ID:", searchId);
+
+    let product = await Product.findOne({ _id: searchId });
     
     if (!product) {
       // Try Signature collection if not found in Product
-      product = await Signature.collection.findOne({ _id: String(productId) });
+      product = await Signature.findOne({ _id: searchId });
+    }
+
+    // If still not found, try searching by numeric 'id' field (for Signature documents)
+    if (!product) {
+      const numericId = Number(productId);
+      if (!Number.isNaN(numericId)) {
+        console.log("🔍 Trying numeric id search:", numericId);
+        product = await Signature.findOne({ id: numericId });
+      }
     }
     
     if (!product) {
       console.error("❌ [addToWishlist] Product not found in Product or Signature collection for ID:", productId);
+      console.log("📊 Signature collection sample:", await Signature.findOne({}).select('_id id slug title').lean());
       return res.status(404).json({ 
         success: false,
         message: "❌ Product not found in database" 
