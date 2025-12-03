@@ -1,63 +1,166 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X, Package, Heart, ShoppingCart } from "lucide-react";
 
 export default function PopupModal({ isOpen, message, closeModal, redirectTo }) {
-  if (!isOpen) return null;
+  // Determine icon based on message
+  const getIcon = () => {
+    if (message.toLowerCase().includes("wishlist")) {
+      return <Heart className="text-brand-maroon" size={56} fill="currentColor" />;
+    } else if (message.toLowerCase().includes("cart")) {
+      return <ShoppingCart className="text-brand-gold" size={56} />;
+    } else {
+      return <CheckCircle className="text-green-500" size={56} />;
+    }
+  };
+
+  // Get action button label
+  const getButtonLabel = () => {
+    const path = redirectTo.replace("/", "");
+    return `View ${path}`;
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.5, y: 30 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 25 },
+    },
+    exit: { opacity: 0, scale: 0.5, y: 30 },
+  };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={closeModal}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.7, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.7 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        onClick={(e) => e.stopPropagation()}
-        className="relative bg-white rounded-2xl shadow-2xl p-6 w-[330px]
-                   border-[3px] border-transparent 
-                   bg-gradient-to-r from-white to-white 
-                   [background-clip:padding-box,border-box] 
-                   before:absolute before:inset-0 before:rounded-2xl 
-                   before:p-[3px] before:bg-gradient-to-r 
-                   before:from-blue-900 before:to-yellow-500 before:-z-10"
-      >
-        {/* Success Icon */}
-        <div className="flex justify-center mb-3">
-          <CheckCircle className="text-green-600" size={48} />
-        </div>
-
-        <h2 className="text-xl font-semibold text-center mb-4 text-gray-800">
-          {message}
-        </h2>
-
-        {/* Buttons */}
-        <div className="flex flex-col gap-3 mt-4">
-          <Link
-            to={redirectTo}
-            onClick={closeModal}
-            className="text-center py-2 rounded-xl font-medium shadow-md
-                      text-white transition-transform duration-200
-                      hover:scale-[1.03]"
-            style={{
-              background: "linear-gradient(45deg, navy, gold)",
-            }}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <motion.div
+            variants={modalVariants}
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl overflow-hidden"
           >
-            Go to {redirectTo.replace("/", "")}
-          </Link>
+            {/* Background Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-ivory via-brand-mist to-white" />
 
-          <button
-            className="text-center py-2 rounded-xl font-medium bg-gray-200 hover:bg-gray-300 
-                       transition-all"
-            onClick={closeModal}
-          >
-            Close
-          </button>
-        </div>
-      </motion.div>
-    </div>
+            {/* Content */}
+            <div className="relative px-8 py-10 z-10">
+              {/* Close Button */}
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 p-2 hover:bg-brand-gold/20 rounded-full transition-all duration-300 group"
+              >
+                <X
+                  size={24}
+                  className="text-brand-charcoal group-hover:text-brand-gold transition-colors"
+                />
+              </button>
+
+              {/* Icon */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", delay: 0.1, stiffness: 200 }}
+                className="flex justify-center mb-6"
+              >
+                <div className="p-4 bg-gradient-to-br from-brand-gold/10 to-brand-purple/10 rounded-full">
+                  {getIcon()}
+                </div>
+              </motion.div>
+
+              {/* Message */}
+              <motion.h2
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl font-bold text-center mb-3 text-brand-navy font-serifFancy"
+              >
+                Perfect!
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center text-brand-charcoal mb-8 font-sansTrend text-sm leading-relaxed"
+              >
+                {message}
+              </motion.p>
+
+              {/* Decorative Divider */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+              </div>
+
+              {/* Action Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col gap-3"
+              >
+                <Link
+                  to={redirectTo}
+                  onClick={closeModal}
+                  className="group text-center py-3 px-4 rounded-2xl font-semibold 
+                           bg-gradient-to-r from-brand-navy via-brand-purple to-brand-navy
+                           text-brand-gold transition-all duration-300 
+                           hover:shadow-lg hover:shadow-brand-gold/30
+                           hover:scale-105 active:scale-95"
+                >
+                  {getButtonLabel()}
+                </Link>
+
+                <button
+                  className="py-3 px-4 rounded-2xl font-semibold 
+                           bg-brand-mist text-brand-navy transition-all duration-300
+                           hover:bg-brand-gold hover:text-brand-navy
+                           hover:shadow-md active:scale-95"
+                  onClick={closeModal}
+                >
+                  Continue Shopping
+                </button>
+              </motion.div>
+
+              {/* Decorative Element */}
+              <div className="mt-6 flex justify-center gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="w-2 h-2 rounded-full bg-brand-gold"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Border Gradient */}
+            <div
+              className="absolute inset-0 rounded-3xl pointer-events-none"
+              style={{
+                borderWidth: "2px",
+                borderImage: "linear-gradient(135deg, #D4AF37, #0B1B3B, #D4AF37) 1",
+              }}
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

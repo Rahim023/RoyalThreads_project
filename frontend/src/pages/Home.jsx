@@ -10,6 +10,7 @@ import ProductCard from "../components/ProductCard";
 import CircularGallery from "../components/CircularGallery";
 import Silk from "../components/Silk";
 import CollectionSlideshow from "../components/CollectionSlideshow";
+import EmailSubscriptionModal from "../components/EmailSubscriptionModal";
 import { collectionData } from "../data/collectionImages";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [otherProducts, setOtherProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -258,14 +260,37 @@ export default function Home() {
           <input
             type="email"
             placeholder="Enter your email"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && e.target.value) {
+                setShowEmailModal(true);
+              }
+            }}
             className="px-4 py-3 rounded-l-lg border border-gray-300 w-72 focus:ring-2 focus:ring-brand-gold"
           />
-          <button className="px-6 py-3 rounded-r-lg bg-brand-gold text-brand-charcoal 
-          hover:bg-brand-navy hover:text-white transition shadow-lg">
+          <button 
+            onClick={() => setShowEmailModal(true)}
+            className="px-6 py-3 rounded-r-lg bg-brand-gold text-brand-charcoal 
+          hover:bg-brand-navy hover:text-white transition shadow-lg font-semibold">
             Subscribe
           </button>
         </div>
       </section>
+
+      {/* Email Subscription Modal */}
+      <EmailSubscriptionModal 
+        isOpen={showEmailModal}
+        closeModal={() => setShowEmailModal(false)}
+        onSubmit={async (email) => {
+          try {
+            // You can add API call here to save the email
+            console.log("Subscribed with email:", email);
+            // await axios.post("http://localhost:5000/api/subscribe", { email });
+          } catch (err) {
+            console.error("Subscription error:", err);
+            throw err;
+          }
+        }}
+      />
 
       {/* Footer */}
       <footer className="bg-brand-navy text-brand-ivory py-14 mt-auto font-sansTrend shadow-inner">
