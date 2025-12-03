@@ -2,8 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
+import LoginGuard from "../components/LoginGuard";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 
 export default function SignatureSeries() {
   const [products, setProducts] = useState([]);
@@ -11,11 +14,25 @@ export default function SignatureSeries() {
   const [spotlight, setSpotlight] = useState([]);
   const [heroImg, setHeroImg] = useState("");
   const [splitLeft, setSplitLeft] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
+  const { addToCart, showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { addToWishlist, showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
+
+  const API_BASE = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : "http://localhost:5000";
+
+  // Sync login modal state from contexts
+  useEffect(() => {
+    if (cartLoginModal || wishlistLoginModal) {
+      setShowLoginModal(true);
+      setCartLoginModal(false);
+      setWishlistLoginModal(false);
+    }
+  }, [cartLoginModal, wishlistLoginModal]);
 
   // fetch from backend
   useEffect(() => {
-    fetch("http://localhost:5000/api/signatures")
+    fetch(`${API_BASE}/api/signatures`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data || []);
@@ -222,12 +239,11 @@ export default function SignatureSeries() {
                                 Limited
                               </div>
                               <button
-  onClick={() => navigate(`/signature/${p.slug}`)}
-  className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
->
-  View Piece
-</button>
-
+                                onClick={() => navigate(`/signature/${p.slug}`)}
+                                className="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-full border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white"
+                              >
+                                View Piece
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -280,6 +296,11 @@ export default function SignatureSeries() {
       <footer className="py-12 text-center text-gray-600">
         © 2025 Royal Threads — Signature Series
       </footer>
+
+      <LoginGuard
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 }

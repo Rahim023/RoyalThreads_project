@@ -3,10 +3,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
+import LoginGuard from "../components/LoginGuard";
 import ProductCardMen from "../components/ProductCardMen";
 import BlurText from "../components/BlurText";
 import ShinyText from "../components/ShinyText";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 
 export default function Men() {
   const [products, setProducts] = useState([]);
@@ -14,10 +17,22 @@ export default function Men() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [currentHero, setCurrentHero] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const BASE_URL = "http://localhost:5000/api";
   const navigate = useNavigate();
   const exploreRef = useRef(null);
+  const { showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
+
+  // Sync login modal from contexts
+  useEffect(() => {
+    if (cartLoginModal || wishlistLoginModal) {
+      setShowLoginModal(true);
+      setCartLoginModal(false);
+      setWishlistLoginModal(false);
+    }
+  }, [cartLoginModal, wishlistLoginModal, setCartLoginModal, setWishlistLoginModal]);
 
   const heroImages = [
     "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/men_homepage/men_hmpage1.jpg",
@@ -283,7 +298,6 @@ export default function Men() {
         <p className="text-sm">© 2025 MyClothing. All rights reserved.</p>
       </footer>
 
-
       {/* SCROLL ANIMATION */}
       <style>
         {`
@@ -298,6 +312,11 @@ export default function Men() {
           }
         `}
       </style>
+
+      <LoginGuard
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 }

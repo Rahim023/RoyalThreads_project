@@ -1,237 +1,337 @@
-// src/pages/DiscoverC.jsx
-import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+// src/pages/Discover.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
 import Header from "../components/Header";
-import { ArrowRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import ProductCard from "../components/ProductCard";
+import LoginGuard from "../components/LoginGuard";
+import axios from "axios";
+import { Eye, Heart, ShoppingBag, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
+import { useCurrency } from "../context/CurrencyContext";
 
 export default function Discover() {
-  const [spotlight, setSpotlight] = useState([]);
-  const [discoverProducts, setDiscoverProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [signatures, setSignatures] = useState([]);
-  const [autoIndex, setAutoIndex] = useState(0);
-  const [navOpen, setNavOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const navigate = useNavigate();
+  const { addToCart, showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { addToWishlist, wishlist, showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
+  const { convertPrice, country } = useCurrency();
 
-  // Fetch signatures and discover products
+  const currencySymbol = country === "Canada" ? "CA$" : country === "USA" ? "US$" : "₹";
+
+  const API_BASE = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : "http://localhost:5000";
+
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        // Discover products (flagged in DB)
-        const pRes = await api.get("/products?discover=true");
-        setDiscoverProducts(Array.isArray(pRes.data) ? pRes.data : []);
+    if (cartLoginModal || wishlistLoginModal) {
+      setShowLoginModal(true);
+      setCartLoginModal(false);
+      setWishlistLoginModal(false);
+    }
+  }, [cartLoginModal, wishlistLoginModal]);
 
-        // Signatures
-        const sRes = await api.get("/signatures");
-        setSignatures(Array.isArray(sRes.data) ? sRes.data : []);
+  // Fetch products + signatures
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
 
-        // Use first few signatures as spotlight images if available
-        const sp = (sRes.data || []).slice(0, 4).map((s) => ({
-          id: s._id || s.id || s.slug,
-          img: s.img || s.image || "/images/signature-placeholder.jpg",
-          title: s.title || s.name || s.slug || "Signature",
-        }));
-        setSpotlight(sp);
-      } catch (err) {
-        console.error("Discover fetch error:", err);
-      }
+    const toArray = (res) => {
+      if (!res) return [];
+      const payload = res.data !== undefined ? res.data : res;
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.products)) return payload.products;
+      if (payload && Array.isArray(payload.data)) return payload.data;
+      return [];
     };
 
-    fetchAll();
+    Promise.all([
+      axios.get(`${API_BASE}/api/products`).catch((e) => {
+        console.warn("Failed to fetch products", e);
+        return { data: [] };
+      }),
+      axios.get(`${API_BASE}/api/signatures`).catch((e) => {
+        console.warn("Failed to fetch signatures", e);
+        return { data: [] };
+      }),
+    ])
+      .then(([prodRes, sigRes]) => {
+        if (!mounted) return;
+        setProducts(toArray(prodRes));
+        setSignatures(toArray(sigRes));
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.error("Discover fetch error", e);
+        if (!mounted) return;
+        setError("Failed to load collections");
+        setLoading(false);
+      });
+
+    return () => { mounted = false; };
   }, []);
 
-  // Auto slide spotlight cards
+  // Combined normalized items
+  const combined = useMemo(() => {
+    const p = (products || []).map((x) => ({
+      id: x._id || x.id,
+      title: x.title,
+      img: x.img || x.images?.[0] || "",
+      price: x.price,
+      type: "product",
+    }));
+
+    const s = (signatures || []).map((x) => ({
+      id: x._id || x.id,
+      title: x.title,
+      img: x.images?.[0] || x.img || "",
+      price: x.price || 0,
+      slug: x.slug || x._id,
+      type: "signature",
+    }));
+
+    return [...s, ...p];
+  }, [products, signatures]);
+
+  // Hero auto-rotate
   useEffect(() => {
-    if (spotlight.length === 0) return;
-    const interval = setInterval(() => {
-      setAutoIndex((i) => (i + 1) % spotlight.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [spotlight]);
+    const t = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % Math.max(1, Math.min(6, combined.length)));
+    }, 4500);
+    return () => clearInterval(t);
+  }, [combined.length]);
 
-  const { scrollY } = useScroll();
-  const parallaxY = useTransform(scrollY, [0, 300], [0, -60]);
+  const isInWishlist = (id) => wishlist?.some((w) => w.id === id || w._id === id);
 
-  const pages = [
-    { name: "Home", to: "/" },
-    { name: "Men", to: "/men" },
-    { name: "Women", to: "/women" },
-    { name: "Wedding", to: "/wedding" },
-    { name: "Signature", to: "/signature" },
-    { name: "Discover", to: "/discover" },
-    { name: "Cart", to: "/cart" },
-    { name: "Wishlist", to: "/wishlist" },
-    { name: "Accessories", to: "/accessories" },
-    { name: "Jewelry", to: "/jewelry" },
-    { name: "Checkout", to: "/checkout" },
+  const handleAddToCart = async (item) => {
+    const result = await addToCart({
+      productId: item.id,
+      title: item.title,
+      price: item.price || 0,
+      img: item.img,
+      quantity: 1,
+      size: "Standard",
+    });
+    if (!result && !localStorage.getItem("token")) {
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleAddToWishlist = async (item) => {
+    if (isInWishlist(item.id)) return;
+    const result = await addToWishlist({ id: item.id, title: item.title, img: item.img });
+    if (!result && !localStorage.getItem("token")) {
+      setShowLoginModal(true);
+    }
+  };
+
+  // Premium hero images
+  const premiumHeroImages = [
+    "https://rt-products.s3.ca-central-1.amazonaws.com/anarkali.jpg",
+    "https://rt-products.s3.ca-central-1.amazonaws.com/goldenlenga.webp",
+    "https://rt-products.s3.ca-central-1.amazonaws.com/mirror.jpg",
   ];
+
+  // Hero items
+  const heroItems = useMemo(() => {
+    const dbItems = [];
+    if (signatures && signatures.length >= 1) {
+      dbItems.push({
+        title: signatures[0]?.title || "Signature Collection",
+        img: premiumHeroImages[0],
+        type: 'signature',
+        id: signatures[0]?._id,
+        slug: signatures[0]?.slug,
+      });
+    }
+    if (products && products.length >= 1) {
+      dbItems.push({
+        title: products[0]?.title || "Featured Product",
+        img: premiumHeroImages[1],
+        type: 'product',
+        id: products[0]?._id,
+      });
+    }
+    if (combined.length >= 1) {
+      dbItems.push({
+        title: combined[0]?.title || "Curated Edit",
+        img: premiumHeroImages[2],
+        type: combined[0]?.type || 'product',
+        id: combined[0]?.id,
+        slug: combined[0]?.slug,
+      });
+    }
+
+    if (dbItems.length === 0) {
+      return premiumHeroImages.map((img, idx) => ({
+        title: `Collection ${idx + 1}`,
+        img,
+        type: 'product',
+        id: `hero-${idx}`,
+      }));
+    }
+
+    return dbItems.length > 0 ? dbItems : [{
+      title: "Discover",
+      img: premiumHeroImages[0],
+      type: 'product',
+      id: 'default',
+    }];
+  }, [signatures, products, combined]);
 
   return (
     <div className="min-h-screen bg-brand-mist font-sansTrend">
       <Header />
 
-      {/* HERO SECTION WITH PARALLAX */}
-      <section className="relative pt-2 pb-20 md:px-2 text-center">
-        <motion.img
-          style={{ y: parallaxY }}
-          src={spotlight[autoIndex]?.img || "https://picsum.photos/1600/600?random=30"}
-          className="w-full h-[380px] md:h-[460px] object-cover rounded-3xl shadow-xl"
-        />
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-10 text-5xl md:text-6xl font-sansTrend font-semibold tracking-tight text-gray-900"
-        >
-          Discover the <span className="text-brand-gold">Edit</span>
-        </motion.h1>
-        <p className="mt-4 text-gray-600 max-w-2xl mx-auto text-lg font-sansTrend">
-          A curated showcase of stories, trends, and premium craftsmanship — reimagined for modern wear.
-        </p>
-      </section>
+      {/* HERO: large premium images */}
+      <section className="relative w-full h-[70vh] md:h-[78vh] overflow-hidden">
+        {heroItems.length === 0 && (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-gray-500">Loading preview...</div>
+          </div>
+        )}
 
-      <div className="w-full h-[6px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
+        {heroItems.map((h, idx) => (
+          <motion.img
+            key={h.id || idx}
+            src={h.img}
+            className="absolute inset-0 w-full h-full object-cover brightness-90"
+            initial={{ opacity: 0, scale: 1.03 }}
+            animate={{ opacity: heroIndex === idx ? 1 : 0, scale: heroIndex === idx ? 1 : 1.03 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            onClick={() => {
+              if (h.type === "signature") navigate(`/signature/${h.slug || h.id}`);
+              else navigate(`/product/${h.id}`);
+            }}
+            style={{ cursor: "pointer" }}
+          />
+        ))}
 
-      {/* SPOTLIGHT AUTO SLIDER (Signature Highlights) */}
-      <section className="px-6 py-2 md:py-2 flex flex-col md:flex-row items-center gap-12 bg-gradient-to-b from-mist to-brand-white">
-        <div className="flex-1 space-y-4 text-left">
-          <h2 className="text-xl md:text-4xl font-fancy leading-tight">
-            Signature <span className="text-brand-gold">Highlights</span>
-          </h2>
-          <p className="text-gray-600 max-w-md font-sansTrend text-base">
-            Handpicked signature pieces and editor favorites from our latest drops.
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+
+        <div className="absolute left-6 bottom-12 z-20 max-w-2xl">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-4xl md:text-6xl font-fancy text-brand-ivory drop-shadow-lg leading-tight"
+          >
+            Discover the <span className="text-brand-gold">Curation</span>
+          </motion.h1>
+
+          <p className="mt-4 text-brand-ivory/90 max-w-xl text-lg font-sansTrend">
+            Handpicked signatures and exclusive edits — click to explore pieces in full detail.
           </p>
-          <div className="h-1 w-24 bg-brand-gold/40 rounded-full"></div>
-          <div className="flex items-center gap-4">
+
+          <div className="mt-6 flex items-center gap-4">
             <button
               onClick={() => navigate("/signature")}
-              className="px-4 py-2 rounded-md bg-brand-navy text-white"
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold shadow-md"
             >
-              View All Signature
+              View Signatures <ArrowRight size={16} />
             </button>
-            <Link to="/signature-series" className="text-sm text-gray-700 hover:text-brand-gold flex items-center gap-2">
-              Explore Series <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
 
-        <div className="flex-1 h-[340px] relative">
-          {spotlight.map((s, i) => (
-            <motion.div
-              key={s.id}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: i === autoIndex ? 1 : 0, scale: i === autoIndex ? 1 : 0.98 }}
-              transition={{ duration: 0.6 }}
-              className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl bg-white"
+            <button
+              onClick={() => navigate("/products")}
+              className="inline-flex items-center gap-3 px-5 py-3 rounded-full border border-brand-ivory text-brand-ivory hover:bg-brand-ivory/10"
             >
-              <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
-              <div className="absolute bottom-6 left-6 text-white text-2xl font-sansTrend font-medium drop-shadow-xl">
-                {s.title}
-              </div>
-            </motion.div>
-          ))}
+              Browse Collection
+            </button>
+          </div>
         </div>
       </section>
 
-      <div className="w-full h-[6px] bg-gradient-to-r from-transparent via-brand-navy to-transparent "></div>
+      <div className="w-full h-[10px] bg-gradient-to-r from-transparent via-brand-gold to-transparent "></div>
 
-      {/* DISCOVER PRODUCT GRID */}
-      <section className="px-6 md:px-20 pb-24">
-        <h3 className="text-3xl md:text-4xl font-sansTrend font-semibold mb-6">Discover Picks</h3>
-        <p className="text-gray-600 mb-8">Curated items chosen for their craftsmanship and modern appeal.</p>
+      {/* SPOTLIGHT: big image grid from combined items */}
+      <section className="px-6 md:px-20 py-12">
+        <h2 className="text-4xl md:text-5xl font-fancy text-brand-navy mb-4">Spotlight Editions</h2>
+        <p className="text-gray-600 max-w-2xl mb-8">A selection from our latest arrivals and signature releases.</p>
 
-        {discoverProducts.length === 0 ? (
-          <p className="text-gray-500">No discover picks available right now.</p>
+        {loading ? (
+          <div className="text-gray-500">Loading...</div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {discoverProducts.map((p) => (
-              <ProductCard key={p.id || p._id} product={p} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {combined.slice(0, 6).map((item, i) => (
+              <motion.div
+                key={item.id || i}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white rounded-3xl overflow-hidden shadow-xl cursor-pointer"
+              >
+                <div className="relative h-96">
+                  <img
+                    src={item.img || "/images/collections/signature/signature-1.jpg"}
+                    className="w-full h-full object-cover"
+                    onClick={() => item.type === "signature" ? navigate(`/signature/${item.slug || item.id}`) : navigate(`/product/${item.id}`)}
+                  />
+
+                  <div className="absolute top-4 right-4 flex gap-3">
+                    <button
+                      onClick={() => handleAddToWishlist(item)}
+                      className={`p-3 rounded-full bg-white/90 shadow-md ${isInWishlist(item.id) ? "text-red-600" : "text-brand-navy"}`}
+                    >
+                      <Heart size={16} />
+                    </button>
+
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="p-3 rounded-full bg-white/90 shadow-md text-brand-navy"
+                    >
+                      <ShoppingBag size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 flex flex-col gap-4">
+                  <h3 className="text-lg font-semibold text-brand-navy line-clamp-2">{item.title}</h3>
+                  <p className="text-brand-gold font-bold mt-1">{currencySymbol}{convertPrice(item.price || 0)}</p>
+
+                  <div className="mt-2 flex gap-3">
+                    <button
+                      onClick={() => item.type === "signature" ? navigate(`/signature/${item.slug || item.id}`) : navigate(`/product/${item.id}`)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-brand-navy text-brand-ivory text-sm hover:opacity-95 transition"
+                    >
+                      <Eye size={16} /> View
+                    </button>
+
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold shadow-md hover:brightness-95 transition"
+                    >
+                      <ShoppingBag size={16} /> Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
       </section>
 
-      {/* SIGNATURE PREVIEW ROW */}
-      <section className="px-6 md:px-20 pb-24">
-        <div className="flex items-center justify-between mb-6">
-          <h4 className="text-2xl font-semibold">Signature Preview</h4>
-          <Link to="/signature" className="text-sm text-brand-gold">See all</Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {signatures.slice(0, 6).map((s) => (
-            <div
-              key={s._id || s.id}
-              onClick={() => navigate(`/signature/${s.slug || s._id}`)}
-              className="cursor-pointer rounded-xl overflow-hidden bg-white shadow hover:scale-105 transition"
-            >
-              <img src={s.img || s.image || "/images/signature-placeholder.jpg"} className="w-full h-56 object-cover" />
-              <div className="p-3">
-                <h5 className="font-semibold">{s.title || s.name || s.slug}</h5>
-                <p className="text-sm text-gray-600 mt-1">{s.subtitle || s.description || "Signature piece"}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* COMPACT NAV DRAWER (does not alter layout) */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() => setNavOpen((v) => !v)}
-          className="bg-brand-navy text-white rounded-full p-3 shadow-lg hover:scale-105 transition"
-          aria-label="Open navigation"
-        >
-          ☰
-        </button>
-
-        {navOpen && (
-          <div className="mt-3 w-64 bg-white rounded-xl shadow-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <strong className="text-sm">Quick Navigation</strong>
-              <button onClick={() => setNavOpen(false)} className="text-gray-500">✕</button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {pages.map((pg) => (
-                <Link
-                  key={pg.to}
-                  to={pg.to}
-                  onClick={() => setNavOpen(false)}
-                  className="text-sm p-2 rounded hover:bg-brand-mist/60"
-                >
-                  {pg.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* CRAFT TIMELINE */}
-      <section className="px-6 md:px-20 pb-24">
-        <h3 className="text-3xl font-sansTrend font-semibold mb-12">Behind the Craft</h3>
-        <div className="space-y-12">
+      {/* CURATED TILES */}
+      <section className="px-6 md:px-20 py-12">
+        <h3 className="text-3xl font-fancy text-brand-navy mb-6">Curated Collections</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            ["Design", "Where imagination meets fabric."],
-            ["Cutting", "Precision cuts by master artisans."],
-            ["Embroidery", "Handcrafted detailing with heritage methods."],
-            ["Finish", "Final touches with luxury-grade polish."],
-          ].map(([title, desc], i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-center gap-6"
-            >
-              <div className="h-16 w-16 rounded-full bg-brand-gold/30 flex items-center justify-center text-xl font-sansTrend font-semibold text-brand-navy">
-                {i + 1}
-              </div>
-              <div>
-                <h4 className="text-xl font-sansTrend font-semibold">{title}</h4>
-                <p className="text-gray-600 mt-1 font-sansTrend">{desc}</p>
+            { label: "Wedding", path: "/wedding", img: "/images/collections/wedding/wedding-1.jpg" },
+            { label: "Men", path: "/men", img: "/images/collections/men/men-1.jpg" },
+            { label: "Women", path: "/women", img: "/images/collections/women/women-1.jpg" },
+            { label: "Signature", path: "/signature", img: "/images/collections/signature/signature-1.jpg" },
+          ].map(({ label, path, img }) => (
+            <motion.div key={label} whileHover={{ scale: 1.03 }} className="relative rounded-3xl overflow-hidden shadow-2xl bg-white cursor-pointer">
+              <img src={img} className="w-full h-64 object-cover" alt={label} />
+              <div className="absolute inset-0 bg-black/25"></div>
+              <div className="absolute left-6 bottom-6 text-white">
+                <h4 className="text-2xl font-semibold">{label}</h4>
+                <button onClick={() => navigate(path)} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-gold text-brand-navy font-semibold">
+                  Explore <ArrowRight size={14} />
+                </button>
               </div>
             </motion.div>
           ))}
@@ -239,8 +339,15 @@ export default function Discover() {
       </section>
 
       <footer className="py-12 text-center text-gray-600 font-sansTrend">
-        © 2025 Royal Threads — Crafted With Precision
+        © 2025 RoyalThreads — Curated with Care
       </footer>
+
+      <LoginGuard
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 }
+
+  

@@ -8,6 +8,7 @@ export const useWishlist = () => useContext(WishlistContext);
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const axiosInstance = axios.create({
     baseURL: "http://localhost:5000/api",
@@ -72,11 +73,17 @@ export const WishlistProvider = ({ children }) => {
 
   // 🔹 Add product
   const addToWishlist = async (product) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return false;
+    }
+
     const productId = resolveId(product);
 
     if (!productId) {
       console.error("❌ Product ID missing in addToWishlist:", product);
-      return alert("Product ID missing");
+      return false;
     }
 
     try {
@@ -85,28 +92,34 @@ export const WishlistProvider = ({ children }) => {
       });
 
       setWishlist((res.data.items || []).map(normalize));
+      return true;
     } catch (err) {
       console.error("Wishlist add error:", err.response?.data || err);
-      alert(
-        "Failed to add: " +
-          (err.response?.data?.message || err.message)
-      );
+      return false;
     }
   };
 
   // 🔹 Remove product
   const removeFromWishlist = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return false;
+    }
+
     try {
       const res = await axiosInstance.delete(`/wishlist/${String(id)}`);
       setWishlist((res.data.items || []).map(normalize));
+      return true;
     } catch (err) {
       console.error("Wishlist remove error:", err.response?.data || err);
+      return false;
     }
   };
 
   return (
     <WishlistContext.Provider
-      value={{ wishlist, loading, addToWishlist, removeFromWishlist }}
+      value={{ wishlist, loading, addToWishlist, removeFromWishlist, showLoginModal, setShowLoginModal }}
     >
       {children}
     </WishlistContext.Provider>

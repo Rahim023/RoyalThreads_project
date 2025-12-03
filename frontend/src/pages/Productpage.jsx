@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
 import PopupModal from "../components/Popupmodal";
+import LoginGuard from "../components/LoginGuard";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import { ArrowLeft, Heart, ShoppingBag, Zap } from "lucide-react";
@@ -18,8 +19,9 @@ export default function ProductPage() {
   const [selectedSize, setSelectedSize] = useState("");
   const [qty, setQty] = useState(1);
 
-  const { addToCart } = useCart();
-  const { addToWishlist } = useWishlist();
+  const { addToCart, showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { addToWishlist, showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const { convertPrice, country } = useCurrency();  // ⭐ Use currency hook
 
@@ -72,8 +74,8 @@ export default function ProductPage() {
     setShowPopup(true);
   };
 // ⭐ FINAL ADD TO CART FUNCTION (PASTE)
-const handleAddToCart = () => {
-  addToCart({
+const handleAddToCart = async () => {
+  const result = await addToCart({
     productId: product._id,   // 🔥 ALWAYS send productId (string)
     title: product.title,
     price: product.price,
@@ -82,12 +84,17 @@ const handleAddToCart = () => {
     size: selectedSize,
   });
 
+  if (!result) {
+    if (!localStorage.getItem("token")) setShowLoginModal(true);
+    return;
+  }
+
   openPopup("Item added to cart", "/cart");
 };
 
 // ⭐ FINAL ADD TO WISHLIST
-const handleAddToWishlist = () => {
-  addToWishlist({
+const handleAddToWishlist = async () => {
+  const result = await addToWishlist({
     productId: product._id,
     title: product.title,
     price: product.price,
@@ -95,6 +102,11 @@ const handleAddToWishlist = () => {
     quantity: qty,
     size: selectedSize,
   });
+
+  if (!result) {
+    if (!localStorage.getItem("token")) setShowLoginModal(true);
+    return;
+  }
 
   openPopup("Item added to wishlist", "/wishlist");
 };
@@ -300,6 +312,15 @@ const handleCheckout = () => {
         message={popupMessage}
         closeModal={() => setShowPopup(false)}
         redirectTo={redirectTo}
+      />
+
+      <LoginGuard
+        isOpen={showLoginModal || cartLoginModal || wishlistLoginModal}
+        onClose={() => {
+          setShowLoginModal(false);
+          if (setCartLoginModal) setCartLoginModal(false);
+          if (setWishlistLoginModal) setWishlistLoginModal(false);
+        }}
       />
 
       <footer className="py-12 text-center text-brand-charcoal/70 font-sansTrend">

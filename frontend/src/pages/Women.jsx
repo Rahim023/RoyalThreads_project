@@ -4,10 +4,13 @@ import { motion, useAnimation, useInView } from "framer-motion";
 import { LucideSearch, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import LoginGuard from "../components/LoginGuard";
 import ProductCard from "../components/ProductCard";
 import CardSwap, { Card } from "../components/CardSwap";
 import BlurText from "../components/BlurText";
 import ShinyText from "../components/ShinyText";
+import { useCart } from "./CartContext";
+import { useWishlist } from "./WishlistContext";
 
 export default function Women() {
   const [products, setProducts] = useState([]);
@@ -16,10 +19,22 @@ export default function Women() {
   const [currentHero, setCurrentHero] = useState(0);
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:5000/api";
   const filterRef = useRef(null);
+  const { showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
+
+  // Sync login modal from contexts
+  useEffect(() => {
+    if (cartLoginModal || wishlistLoginModal) {
+      setShowLoginModal(true);
+      setCartLoginModal(false);
+      setWishlistLoginModal(false);
+    }
+  }, [cartLoginModal, wishlistLoginModal, setCartLoginModal, setWishlistLoginModal]);
 
   // 👉 NEW: Ref for Explore All section
   const exploreRef = useRef(null);

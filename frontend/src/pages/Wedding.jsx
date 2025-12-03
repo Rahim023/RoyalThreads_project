@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
+import LoginGuard from "../components/LoginGuard";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
 import { useCurrency } from "../context/CurrencyContext";
@@ -15,17 +16,27 @@ export default function Wedding() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [currentHero, setCurrentHero] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const BASE_URL = "http://localhost:5000/api";
   const exploreRef = useRef(null);
   const navigate = useNavigate();
 
-  const { addToCart } = useCart();
-  const { wishlist, addToWishlist } = useWishlist();
+  const { addToCart, showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
+  const { wishlist, addToWishlist, showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();
   const { convertPrice, country } = useCurrency();
 
   const currencySymbol =
     country === "Canada" ? "CA$" : country === "USA" ? "US$" : "₹";
+
+  // Sync login modal from contexts
+  useEffect(() => {
+    if (cartLoginModal || wishlistLoginModal) {
+      setShowLoginModal(true);
+      setCartLoginModal(false);
+      setWishlistLoginModal(false);
+    }
+  }, [cartLoginModal, wishlistLoginModal, setCartLoginModal, setWishlistLoginModal]);
 
   const heroImages = [
     "https://amzn-s3-cap-bucket.s3.us-east-2.amazonaws.com/wedding+homepage/wed_1.jpg",
@@ -383,6 +394,11 @@ export default function Wedding() {
       <footer className="bg-brand-navy text-brand-ivory py-8 text-center mt-16">
         <p className="text-sm">© 2025 RoyalThreads. All rights reserved.</p>
       </footer>
+
+      <LoginGuard
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </div>
   );
 }
