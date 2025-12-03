@@ -3,8 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import { api } from "../services/api";
 import { motion } from "framer-motion";
-import Particles from "../components/particles";
-import Silk from "../components/Silk";  
+import Silk from "../components/Silk";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -45,21 +44,26 @@ export default function Signup() {
 
   const validate = () => {
     const errs = {};
-    const postalRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/; // ✅ Valid Canadian format
+    const postalRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/; // ✅ Canadian format
     const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (!formData.username) errs.username = "Username required";
     if (!formData.email) errs.email = "Email required";
+
     if (!formData.password) errs.password = "Password required";
     else if (!pwdRegex.test(formData.password))
       errs.password =
         "Password must have 1 uppercase, 1 lowercase, 1 number and 8+ chars";
+
     if (formData.password !== formData.confirmPassword)
       errs.confirmPassword = "Passwords do not match";
+
     if (!formData.phone) errs.phone = "Phone number required";
+
     if (!formData.postalCode) errs.postalCode = "Postal code required";
     else if (!postalRegex.test(formData.postalCode))
       errs.postalCode = "Invalid postal code format";
+
     if (!formData.country) errs.country = "Country required";
 
     setErrors(errs);
@@ -72,9 +76,11 @@ export default function Signup() {
     if (Object.keys(errs).length > 0) {
       const firstError = Object.keys(errs)[0];
       const el = refs[firstError].current;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.classList.add("shake");
-      setTimeout(() => el.classList.remove("shake"), 500);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("shake");
+        setTimeout(() => el.classList.remove("shake"), 500);
+      }
       return;
     }
 
@@ -95,7 +101,7 @@ export default function Signup() {
 
   return (
     <>
-      {/* 🔹 Particle Background */}
+      {/* 🔹 Background Silk */}
       <div
         style={{
           width: "100%",
@@ -107,32 +113,44 @@ export default function Signup() {
           backgroundColor: "navy",
         }}
       >
-                <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
+        <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
       </div>
 
       <div className="min-h-screen flex flex-col justify-center relative">
         <Header />
 
-        <section className="flex flex-1 justify-center items-center bg-transparent relative py-10">
-          {/* 🔹 Signup Box with 360° Animated Gradient Border */}
+        <section className="flex flex-1 justify-center items-center bg-transparent relative py-10 px-4">
+          {/* 🔹 Signup Box with Animated Border */}
           <motion.div
-            className="relative w-full max-w-md z-10 p-[4px] rounded-2xl"
-           
+            className="relative w-full max-w-2xl z-10 p-[6px] rounded-3xl"
             style={{
-              background:
-                "linear-gradient(90deg, #0B2545, #FFD700, #0B2545, #FFD700)",
+              background: "linear-gradient(90deg, #0B2545, #FFD700, #0B2545)",
               backgroundSize: "400% 400%",
-              boxShadow: "0 0 30px rgba(255, 215, 0, 0.3)",
+              boxShadow: "0 8px 40px rgba(11, 18, 59, 0.25)",
             }}
           >
-            <div className="bg-white rounded-2xl p-8 shadow-lg w-full">
-              <h1 className="text-3xl font-bold text-center mb-6 text-brand-navy">
-                Sign Up
-              </h1>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Username */}
+            <div className="bg-white rounded-3xl p-10 shadow-2xl w-full">
+              <div className="flex items-center gap-6 mb-4">
+                <div className="w-14 h-14 rounded-full bg-brand-gold flex items-center justify-center text-brand-navy font-bold text-lg">
+                  RT
+                </div>
                 <div>
+                  <h1 className="text-3xl font-bold text-brand-navy">
+                    Create Your Account
+                  </h1>
+                  <p className="text-sm text-gray-500">
+                    Join RoyalThreads — enjoy curated selection & faster checkout
+                  </p>
+                </div>
+              </div>
+
+              {/* ✅ FORM PROPERLY CLOSED */}
+              <form
+                onSubmit={handleSubmit}
+                className="grid grid-cols-2 gap-4"
+              >
+                <div className="col-span-2 md:col-span-1">
+                  <label className="text-sm text-gray-600">Username</label>
                   <input
                     ref={refs.username}
                     name="username"
@@ -140,7 +158,7 @@ export default function Signup() {
                     placeholder="Username"
                     value={formData.username}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.username ? "border-red-500" : ""
                     }`}
                   />
@@ -151,8 +169,8 @@ export default function Signup() {
                   )}
                 </div>
 
-                {/* Email */}
-                <div>
+                <div className="col-span-2 md:col-span-1">
+                  <label className="text-sm text-gray-600">Email</label>
                   <input
                     ref={refs.email}
                     name="email"
@@ -160,17 +178,19 @@ export default function Signup() {
                     placeholder="Email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.email ? "border-red-500" : ""
                     }`}
                   />
                   {errors.email && (
-                    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.email}
+                    </p>
                   )}
                 </div>
 
-                {/* Password */}
                 <div>
+                  <label className="text-sm text-gray-600">Password</label>
                   <input
                     ref={refs.password}
                     name="password"
@@ -178,7 +198,7 @@ export default function Signup() {
                     placeholder="Password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.password ? "border-red-500" : ""
                     }`}
                   />
@@ -189,8 +209,10 @@ export default function Signup() {
                   )}
                 </div>
 
-                {/* Confirm Password */}
                 <div>
+                  <label className="text-sm text-gray-600">
+                    Confirm Password
+                  </label>
                   <input
                     ref={refs.confirmPassword}
                     name="confirmPassword"
@@ -198,7 +220,7 @@ export default function Signup() {
                     placeholder="Confirm Password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.confirmPassword ? "border-red-500" : ""
                     }`}
                   />
@@ -209,8 +231,8 @@ export default function Signup() {
                   )}
                 </div>
 
-                {/* Phone */}
                 <div>
+                  <label className="text-sm text-gray-600">Phone</label>
                   <input
                     ref={refs.phone}
                     name="phone"
@@ -218,17 +240,19 @@ export default function Signup() {
                     placeholder="Phone Number"
                     value={formData.phone}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.phone ? "border-red-500" : ""
                     }`}
                   />
                   {errors.phone && (
-                    <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.phone}
+                    </p>
                   )}
                 </div>
 
-                {/* Postal Code */}
                 <div>
+                  <label className="text-sm text-gray-600">Postal Code</label>
                   <input
                     ref={refs.postalCode}
                     name="postalCode"
@@ -236,7 +260,7 @@ export default function Signup() {
                     placeholder="Postal Code"
                     value={formData.postalCode}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.postalCode ? "border-red-500" : ""
                     }`}
                   />
@@ -247,14 +271,14 @@ export default function Signup() {
                   )}
                 </div>
 
-                {/* Country */}
                 <div>
+                  <label className="text-sm text-gray-600">Country</label>
                   <select
                     ref={refs.country}
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-gold ${
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
                       errors.country ? "border-red-500" : ""
                     }`}
                   >
@@ -272,12 +296,14 @@ export default function Signup() {
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-brand-navy text-white rounded-lg hover:bg-brand-gold hover:text-brand-charcoal transition"
-                >
-                  Sign Up
-                </button>
+                <div className="col-span-2">
+                  <button
+                    type="submit"
+                    className="w-full mt-2 py-3 bg-brand-navy text-white rounded-xl hover:bg-brand-gold hover:text-brand-charcoal transition"
+                  >
+                    Sign Up
+                  </button>
+                </div>
               </form>
 
               {message && (
@@ -286,7 +312,10 @@ export default function Signup() {
 
               <p className="text-center text-sm mt-4">
                 Already have an account?{" "}
-                <Link to="/login" className="text-brand-gold hover:underline">
+                <Link
+                  to="/login"
+                  className="text-brand-gold hover:underline"
+                >
                   Login
                 </Link>
               </p>

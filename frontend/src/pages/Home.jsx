@@ -305,7 +305,6 @@ export default function Home() {
               <li>Discover</li>
             </ul>
           </div>
-
           <div>
             <h4 className="font-serifFancy mb-4 text-lg">Help</h4>
             <ul className="space-y-2 text-sm">

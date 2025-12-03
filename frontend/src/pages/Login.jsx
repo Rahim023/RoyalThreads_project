@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa"; // icons
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
+import { FiUser } from "react-icons/fi";
 import Header from "../components/Header";
 import { api } from "../services/api";
 import LiquidEther from "./LiquidEther";
@@ -56,10 +57,14 @@ export default function Login() {
 
       {/* Login Form */}
       <section className="flex flex-1 items-center justify-center relative z-10 px-6">
-        <div className="bg-white/90 backdrop-blur-md shadow-luxe rounded-2xl p-8 w-full max-w-md border-2">
-          <h1 className="text-3xl font-bold text-center text-brand-navy mb-6">
-            Login
-          </h1>
+        <div className="bg-white/95 backdrop-blur-md shadow-luxe rounded-3xl p-8 w-full max-w-xl border-2 border-brand-ivory">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-brand-gold flex items-center justify-center text-brand-navy text-xl font-bold">RT</div>
+            <div>
+              <h1 className="text-3xl font-bold text-brand-navy">Welcome Back</h1>
+              <p className="text-sm text-gray-500">Sign in to continue to RoyalThreads</p>
+            </div>
+          </div>
 
           {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
@@ -72,7 +77,7 @@ export default function Login() {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                className="w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold focus:outline-none"
                 required
               />
             </div>
@@ -85,7 +90,7 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                className="w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold focus:outline-none"
                 required
               />
               <div
@@ -107,23 +112,25 @@ export default function Login() {
           </form>
 
           {/* Social Login: Row Layout */}
-          <div className="mt-6 flex gap-4">
-            <button className="flex-1 flex items-center justify-center py-2 border rounded-lg hover:bg-gray-100 transition">
-              <FcGoogle className="mr-2 text-xl" />
-              Sign in with Google
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button className="flex items-center justify-center py-2 border rounded-xl hover:bg-gray-50 transition gap-2">
+              <FcGoogle className="text-2xl" />
+              <span className="font-medium">Continue with Google</span>
             </button>
-            <button className="flex-1 flex items-center justify-center py-2 border rounded-lg hover:bg-gray-100 transition">
-              <FaApple className="mr-2 text-xl" />
-             Sign in with Apple
+            <button className="flex items-center justify-center py-2 border rounded-xl hover:bg-gray-50 transition gap-2">
+              <FaApple className="text-2xl" />
+              <span className="font-medium">Continue with Apple</span>
             </button>
           </div>
 
-          <p className="text-sm text-center text-gray-600 mt-4">
-            Don’t have an account?{" "}
+          <div className="mt-6 flex items-center justify-between text-sm">
+            <label className="flex items-center gap-2 text-gray-600">
+              <input type="checkbox" className="rounded" /> Remember me
+            </label>
             <a href="/signup" className="text-brand-gold hover:underline">
-              Sign up
+              Create an account
             </a>
-          </p>
+          </div>
         </div>
       </section>
     </div>

@@ -53,12 +53,20 @@ export const WishlistProvider = ({ children }) => {
     const load = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        setWishlist([]);
+        // Load guest wishlist from localStorage
+        try {
+          const guest = JSON.parse(localStorage.getItem("rt_guest_wishlist") || "[]");
+          setWishlist((guest || []).map(normalize));
+        } catch (e) {
+          setWishlist([]);
+        }
         setLoading(false);
         return;
       }
 
       try {
+        // If logged in, merge guest wishlist then fetch server wishlist
+        await mergeGuestWishlist();
         const res = await axiosInstance.get("/wishlist");
         setWishlist((res.data.items || []).map(normalize));
       } catch (err) {
@@ -68,22 +76,75 @@ export const WishlistProvider = ({ children }) => {
       }
     };
 
+    // Poll for token changes (detect login in same tab)
+    let lastToken = localStorage.getItem("token");
     load();
+    const poll = setInterval(() => {
+      const t = localStorage.getItem("token");
+      if (t !== lastToken) {
+        lastToken = t;
+        load();
+      }
+    }, 1000);
+
+    return () => clearInterval(poll);
   }, []);
+
+  // Guest wishlist helpers
+  const GUEST_KEY = "rt_guest_wishlist";
+  const getGuestWishlist = () => {
+    try {
+      return JSON.parse(localStorage.getItem(GUEST_KEY) || "[]");
+    } catch (e) {
+      return [];
+    }
+  };
+  const saveGuestWishlist = (items) => {
+    localStorage.setItem(GUEST_KEY, JSON.stringify(items || []));
+  };
+  const clearGuestWishlist = () => localStorage.removeItem(GUEST_KEY);
+
+  // Merge guest wishlist into server on login
+  const mergeGuestWishlist = async () => {
+    const guest = getGuestWishlist();
+    if (!guest || guest.length === 0) return;
+
+    try {
+      for (const it of guest) {
+        const productId = resolveId(it) || it.productId || it.id || it._id;
+        if (!productId) continue;
+        await axiosInstance.post("/wishlist/add", { productId: String(productId) });
+      }
+      clearGuestWishlist();
+    } catch (err) {
+      console.warn("Failed merging guest wishlist:", err.response?.data || err);
+    }
+  };
 
   // 🔹 Add product
   const addToWishlist = async (product) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      setShowLoginModal(true);
-      return false;
-    }
 
     const productId = resolveId(product);
 
     if (!productId) {
       console.error("❌ Product ID missing in addToWishlist:", product);
       return false;
+    }
+
+    // If not authenticated, save to guest wishlist
+    if (!token) {
+      try {
+        const guest = getGuestWishlist();
+        guest.push({ productId: String(productId), title: product.title, img: product.img, price: product.price });
+        saveGuestWishlist(guest);
+        setWishlist((guest || []).map(normalize));
+        setShowLoginModal(true);
+        return false;
+      } catch (e) {
+        console.error("Guest wishlist save failed:", e);
+        return false;
+      }
     }
 
     try {
@@ -103,8 +164,17 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (id) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setShowLoginModal(true);
-      return false;
+      // Remove from guest wishlist
+      try {
+        const guest = getGuestWishlist().filter((g) => (g.productId || g.id || g._id) !== String(id));
+        saveGuestWishlist(guest);
+        setWishlist((guest || []).map(normalize));
+        setShowLoginModal(true);
+        return false;
+      } catch (e) {
+        console.error("Guest wishlist remove failed:", e);
+        return false;
+      }
     }
 
     try {
