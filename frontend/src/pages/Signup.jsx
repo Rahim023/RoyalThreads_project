@@ -122,7 +122,7 @@ export default function Signup() {
         <section className="flex flex-1 justify-center items-center bg-transparent relative py-10 px-4">
           {/* 🔹 Signup Box with Animated Border */}
           <motion.div
-            className="relative w-full max-w-2xl z-10 p-[6px] rounded-3xl"
+            className="relative font-sansTrend  w-full max-w-2xl z-10 p-[6px] rounded-3xl"
             style={{
               background: "linear-gradient(90deg, #0B2545, #FFD700, #0B2545)",
               backgroundSize: "400% 400%",

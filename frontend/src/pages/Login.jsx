@@ -59,9 +59,9 @@ export default function Login() {
       <section className="flex flex-1 items-center justify-center relative z-10 px-6">
         <div className="bg-white/95 backdrop-blur-md shadow-luxe rounded-3xl p-8 w-full max-w-xl border-2 border-brand-ivory">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-full bg-brand-gold flex items-center justify-center text-brand-navy text-xl font-bold">RT</div>
+            <div className="w-12 h-12 rounded-full bg-brand-gold flex items-center justify-center font-sansTrend text-brand-navy text-xl font-bold">RT</div>
             <div>
-              <h1 className="text-3xl font-bold text-brand-navy">Welcome Back</h1>
+              <h1 className="text-3xl font-sansTrend font-bold text-brand-navy">Welcome Back</h1>
               <p className="text-sm text-gray-500">Sign in to continue to RoyalThreads</p>
             </div>
           </div>
