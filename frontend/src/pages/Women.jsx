@@ -317,24 +317,7 @@ export default function Women() {
       </section>
 
       {/* Subscription */}
-      <section className="bg-brand-navy text-brand-ivory py-16 text-center">
-        <h2 className="text-3xl md:text-4xl font-sansTrend font-bold mb-4">
-          Subscribe to Our Newsletter
-        </h2>
-        <p className="text-lg mb-6 font-sansTrend">
-          Get the latest updates and exclusive offers.
-        </p>
-        <form className="flex justify-center gap-3 flex-wrap">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="p-3 rounded-lg w-6a4 max-w-full focus:outline-none focus:ring-2 focus:ring-brand-gold font-sansTrend"
-          />
-          <button className="px-6 py-3 rounded-lg bg-brand-gold text-brand-navy font-sansTrend font-semibold hover:bg-brand-ivory hover:text-brand-navy transition">
-            Subscribe
-          </button>
-        </form>
-      </section>
+     
 
       <footer className="bg-brand-navy text-brand-ivory py-6 text-center mt-12 font-sansTrend">
         <p>© 2025 MyClothing. All rights reserved.</p>
