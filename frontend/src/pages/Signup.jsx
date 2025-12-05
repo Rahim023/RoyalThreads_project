@@ -19,8 +19,7 @@ export default function Signup() {
   });
 
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState("");
-
+  const [signupSuccess, setSignupSuccess] = useState(false); // ⭐ NEW
   const refs = {
     username: useRef(),
     email: useRef(),
@@ -44,7 +43,7 @@ export default function Signup() {
 
   const validate = () => {
     const errs = {};
-    const postalRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/; // ✅ Canadian format
+    const postalRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
     const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (!formData.username) errs.username = "Username required";
@@ -62,7 +61,7 @@ export default function Signup() {
 
     if (!formData.postalCode) errs.postalCode = "Postal code required";
     else if (!postalRegex.test(formData.postalCode))
-      errs.postalCode = "Invalid postal code format";
+      errs.postalCode = "Invalid postal code";
 
     if (!formData.country) errs.country = "Country required";
 
@@ -73,9 +72,11 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
+
     if (Object.keys(errs).length > 0) {
       const firstError = Object.keys(errs)[0];
       const el = refs[firstError].current;
+
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
         el.classList.add("shake");
@@ -85,12 +86,19 @@ export default function Signup() {
     }
 
     try {
-      const res = await api.post("/auth/register", formData);
-      setMessage("✅ Signup Successful! Redirecting to login...");
-      localStorage.setItem("token", res.data.token);
-      setTimeout(() => navigate("/login"), 1500);
+      await api.post("/auth/register", formData);
+
+      // ⭐ Trigger success loading overlay
+      setSignupSuccess(true);
+
+      // ⭐ Smooth Redirect
+      setTimeout(() => {
+        navigate("/login");
+      }, 1200);
     } catch (err) {
-      setMessage(err.response?.data?.message || "❌ Signup failed");
+      setErrors({
+        email: err.response?.data?.message || "Signup failed",
+      });
     }
   };
 
@@ -101,14 +109,13 @@ export default function Signup() {
 
   return (
     <>
-      {/* 🔹 Background Silk */}
+      {/* Background */}
       <div
         style={{
           width: "100%",
           height: "100vh",
           position: "fixed",
-          top: 0,
-          left: 0,
+          inset: 0,
           zIndex: -1,
           backgroundColor: "navy",
         }}
@@ -116,13 +123,12 @@ export default function Signup() {
         <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
       </div>
 
-      <div className="min-h-screen flex flex-col justify-center relative">
+      <div className="min-h-screen flex flex-col relative">
         <Header />
 
-        <section className="flex flex-1 justify-center items-center bg-transparent relative py-10 px-4">
-          {/* 🔹 Signup Box with Animated Border */}
+        <section className="flex flex-1 justify-center items-center py-10 px-4">
           <motion.div
-            className="relative font-sansTrend  w-full max-w-2xl z-10 p-[6px] rounded-3xl"
+            className="relative font-sansTrend w-full max-w-2xl z-10 p-[6px] rounded-3xl"
             style={{
               background: "linear-gradient(90deg, #0B2545, #FFD700, #0B2545)",
               backgroundSize: "400% 400%",
@@ -130,6 +136,8 @@ export default function Signup() {
             }}
           >
             <div className="bg-white rounded-3xl p-10 shadow-2xl w-full">
+
+              {/* Header */}
               <div className="flex items-center gap-6 mb-4">
                 <div className="w-14 h-14 rounded-full bg-brand-gold flex items-center justify-center text-brand-navy font-bold text-lg">
                   RT
@@ -139,138 +147,123 @@ export default function Signup() {
                     Create Your Account
                   </h1>
                   <p className="text-sm text-gray-500">
-                    Join RoyalThreads — enjoy curated selection & faster checkout
+                    Join RoyalThreads — enjoy curated fashion & fast checkout
                   </p>
                 </div>
               </div>
 
-              {/* ✅ FORM PROPERLY CLOSED */}
-              <form
-                onSubmit={handleSubmit}
-                className="grid grid-cols-2 gap-4"
-              >
+              {/* FORM */}
+              <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+
+                {/* Username */}
                 <div className="col-span-2 md:col-span-1">
                   <label className="text-sm text-gray-600">Username</label>
                   <input
                     ref={refs.username}
                     name="username"
                     type="text"
-                    placeholder="Username"
                     value={formData.username}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.username ? "border-red-500" : ""
-                    }`}
+                    placeholder="Username"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.username ? "border-red-500" : ""}`}
                   />
                   {errors.username && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.username}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.username}</p>
                   )}
                 </div>
 
+                {/* Email */}
                 <div className="col-span-2 md:col-span-1">
                   <label className="text-sm text-gray-600">Email</label>
                   <input
                     ref={refs.email}
                     name="email"
                     type="email"
-                    placeholder="Email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.email ? "border-red-500" : ""
-                    }`}
+                    placeholder="Email"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.email ? "border-red-500" : ""}`}
                   />
                   {errors.email && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.email}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.email}</p>
                   )}
                 </div>
 
+                {/* Password */}
                 <div>
                   <label className="text-sm text-gray-600">Password</label>
                   <input
                     ref={refs.password}
                     name="password"
                     type="password"
-                    placeholder="Password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.password ? "border-red-500" : ""
-                    }`}
+                    placeholder="Password"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.password ? "border-red-500" : ""}`}
                   />
                   {errors.password && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.password}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.password}</p>
                   )}
                 </div>
 
+                {/* Confirm Password */}
                 <div>
-                  <label className="text-sm text-gray-600">
-                    Confirm Password
-                  </label>
+                  <label className="text-sm text-gray-600">Confirm Password</label>
                   <input
                     ref={refs.confirmPassword}
                     name="confirmPassword"
                     type="password"
-                    placeholder="Confirm Password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.confirmPassword ? "border-red-500" : ""
-                    }`}
+                    placeholder="Confirm Password"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.confirmPassword ? "border-red-500" : ""}`}
                   />
                   {errors.confirmPassword && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.confirmPassword}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.confirmPassword}</p>
                   )}
                 </div>
 
+                {/* Phone */}
                 <div>
                   <label className="text-sm text-gray-600">Phone</label>
                   <input
                     ref={refs.phone}
                     name="phone"
                     type="tel"
-                    placeholder="Phone Number"
                     value={formData.phone}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.phone ? "border-red-500" : ""
-                    }`}
+                    placeholder="Phone Number"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.phone ? "border-red-500" : ""}`}
                   />
                   {errors.phone && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.phone}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.phone}</p>
                   )}
                 </div>
 
+                {/* Postal Code */}
                 <div>
                   <label className="text-sm text-gray-600">Postal Code</label>
                   <input
                     ref={refs.postalCode}
                     name="postalCode"
                     type="text"
-                    placeholder="Postal Code"
                     value={formData.postalCode}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.postalCode ? "border-red-500" : ""
-                    }`}
+                    placeholder="Postal Code"
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl 
+                      ${errors.postalCode ? "border-red-500" : ""}`}
                   />
                   {errors.postalCode && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.postalCode}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.postalCode}</p>
                   )}
                 </div>
 
+                {/* Country */}
                 <div>
                   <label className="text-sm text-gray-600">Country</label>
                   <select
@@ -278,24 +271,20 @@ export default function Signup() {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className={`w-full mt-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold ${
-                      errors.country ? "border-red-500" : ""
-                    }`}
+                    className={`w-full mt-1 px-4 py-2 border rounded-xl
+                      ${errors.country ? "border-red-500" : ""}`}
                   >
                     <option value="">Select Country</option>
                     {countries.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
+                      <option key={c}>{c}</option>
                     ))}
                   </select>
                   {errors.country && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.country}
-                    </p>
+                    <p className="text-red-600 text-sm">{errors.country}</p>
                   )}
                 </div>
 
+                {/* Submit */}
                 <div className="col-span-2">
                   <button
                     type="submit"
@@ -304,18 +293,12 @@ export default function Signup() {
                     Sign Up
                   </button>
                 </div>
-              </form>
 
-              {message && (
-                <p className="text-center mt-4 text-sm">{message}</p>
-              )}
+              </form>
 
               <p className="text-center text-sm mt-4">
                 Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="text-brand-gold hover:underline"
-                >
+                <Link to="/login" className="text-brand-gold hover:underline">
                   Login
                 </Link>
               </p>
@@ -323,6 +306,15 @@ export default function Signup() {
           </motion.div>
         </section>
       </div>
+
+      {/* ⭐ LOADING OVERLAY */}
+      {signupSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md z-50">
+          <div className="text-white text-2xl font-semibold animate-pulse">
+            Creating your account...
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa"; // icons
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
-import { FiUser } from "react-icons/fi";
 import Header from "../components/Header";
 import { api } from "../services/api";
-import LiquidEther from "./LiquidEther";
 import Silk from "../components/Silk";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // toggle password
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loginSuccess, setLoginSuccess] = useState(false); // Animation state
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -24,13 +23,22 @@ export default function Login() {
 
     try {
       const res = await api.post("/auth/login", { email, password });
+
+      // Save user data
       localStorage.setItem("token", res.data.token);
       localStorage.setItem(
         "user",
         JSON.stringify({ _id: res.data._id, email: res.data.email })
       );
-      alert("Login Successful 🎉");
-      navigate("/");
+
+      // Trigger animation
+      setLoginSuccess(true);
+
+      // Redirect after animation
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
+
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Invalid email or password ❌");
@@ -41,7 +49,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Liquid Ether Background */}
+      {/* Background */}
       <div
         style={{
           position: "fixed",
@@ -50,18 +58,22 @@ export default function Login() {
           pointerEvents: "none",
           backgroundColor: "black",
         }}
-      >        <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
+      >
+        <Silk speed={5} scale={1} color="#f5f0e6" noiseIntensity={0} rotation={0} />
       </div>
 
       <Header />
 
-      {/* Login Form */}
-      <section className="flex flex-1 items-center justify-center relative z-10 px-6">
-        <div className="bg-white/95 backdrop-blur-md shadow-luxe rounded-3xl p-8 w-full max-w-xl border-2 border-brand-ivory">
+      {/* Login Section */}
+      <section className="flex flex-1 items-center justify-center px-6 relative z-10">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl p-8 w-full max-w-xl border border-brand-ivory">
+          
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-full bg-brand-gold flex items-center justify-center font-sansTrend text-brand-navy text-xl font-bold">RT</div>
+            <div className="w-12 h-12 rounded-full bg-brand-gold flex items-center justify-center text-brand-navy font-bold text-xl">
+              RT
+            </div>
             <div>
-              <h1 className="text-3xl font-sansTrend font-bold text-brand-navy">Welcome Back</h1>
+              <h1 className="text-3xl font-bold text-brand-navy">Welcome Back</h1>
               <p className="text-sm text-gray-500">Sign in to continue to RoyalThreads</p>
             </div>
           </div>
@@ -77,12 +89,12 @@ export default function Login() {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                className="w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold outline-none"
                 required
               />
             </div>
 
-            {/* Password Input with show/hide */}
+            {/* Password Input */}
             <div className="relative">
               <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -90,7 +102,7 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                className="w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-brand-gold outline-none"
                 required
               />
               <div
@@ -111,15 +123,15 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Social Login: Row Layout */}
+          {/* Social Buttons */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button className="flex items-center justify-center py-2 border rounded-xl hover:bg-gray-50 transition gap-2">
               <FcGoogle className="text-2xl" />
-              <span className="font-medium">Continue with Google</span>
+              <span className="font-medium">Google</span>
             </button>
             <button className="flex items-center justify-center py-2 border rounded-xl hover:bg-gray-50 transition gap-2">
               <FaApple className="text-2xl" />
-              <span className="font-medium">Continue with Apple</span>
+              <span className="font-medium">Apple</span>
             </button>
           </div>
 
@@ -133,6 +145,15 @@ export default function Login() {
           </div>
         </div>
       </section>
+
+      {/* SUCCESS ANIMATION OVERLAY */}
+      {loginSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md z-50">
+          <div className="text-white text-2xl font-semibold animate-pulse">
+            Logging you in...
+          </div>
+        </div>
+      )}
     </div>
   );
 }

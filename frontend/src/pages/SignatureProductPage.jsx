@@ -6,9 +6,7 @@ import Header from "../components/Header";
 import PopupModal from "../components/Popupmodal";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
-import { ArrowLeft } from "lucide-react";
-
-// ⭐ Currency Hook (same as ProductPage)
+import { ArrowLeft, Heart, ShoppingBag, Zap } from "lucide-react";
 import { useCurrency } from "../context/CurrencyContext";
 
 export default function SignatureProductPage() {
@@ -40,7 +38,7 @@ export default function SignatureProductPage() {
         const data = await res.json();
 
         setProduct(data);
-        setMainImage(data.images?.[0] || data.img);
+        setMainImage(data.images?.[0] || data.img || "");
         setSelectedSize(data.sizes?.[0] || "");
       } catch (err) {
         console.error("Error loading signature product", err);
@@ -63,7 +61,6 @@ export default function SignatureProductPage() {
     setShowPopup(true);
   };
 
-  // ⭐ SAME AS PRODUCT PAGE
   const handleAddToCart = () => {
     addToCart({
       productId: product._id,
@@ -114,17 +111,20 @@ export default function SignatureProductPage() {
       <div className="px-6 md:px-20 py-6">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-brand-navy hover:text-brand-gold"
+          className="inline-flex items-center gap-2 text-brand-navy hover:text-brand-gold transition-colors font-semibold"
         >
-          <ArrowLeft /> Back
+          <ArrowLeft size={20} /> Back
         </button>
       </div>
 
-      {/* PRODUCT BODY (EXACT SAME LAYOUT AS ProductPage) */}
-      <section className="max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-10 py-8">
+      {/* PRODUCT SECTION — EXACT PRODUCT PAGE UI */}
+      <section className="max-w-7xl mx-auto px-6 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-12 py-8">
         
-        {/* IMAGE */}
-        <div>
+        {/* IMAGE SECTION */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
           <motion.img
             key={mainImage}
             initial={{ opacity: 0, scale: 1.02 }}
@@ -132,63 +132,80 @@ export default function SignatureProductPage() {
             transition={{ duration: 0.45 }}
             src={mainImage}
             alt={product.title}
-            className="w-full h-[600px] object-cover rounded-2xl shadow-lg"
+            className="w-full h-[600px] object-contain rounded-3xl shadow-2xl bg-white p-6 border-2 border-brand-gold/20"
           />
 
           {/* THUMBNAILS */}
           <div className="flex gap-3 mt-4">
-            {(product.images || [product.img]).map((img, i) => (
+            {(product.images?.length ? product.images : [product.img]).map((img, i) => (
               <button
                 key={i}
                 onClick={() => setMainImage(img)}
-                className={`h-20 w-20 rounded-lg overflow-hidden border ${
-                  mainImage === img ? "border-brand-gold" : "border-gray-300"
+                className={`h-20 w-20 rounded-xl overflow-hidden border-2 ${
+                  mainImage === img ? "border-brand-gold" : "border-brand-gold/30"
                 }`}
               >
-                <img src={img} className="w-full h-full object-cover" />
+                <img src={img} className="w-full h-full object-cover bg-white" />
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* DETAILS */}
-        <div className="space-y-6">
-
-          <h1 className="text-4xl font-fancy text-brand-navy">{product.title}</h1>
+        {/* DETAILS SECTION */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="space-y-8"
+        >
+          {/* TITLE */}
+          <div>
+            <h1 className="text-4xl md:text-5xl font-serifFancy font-bold text-brand-navy mb-2">
+              {product.title}
+            </h1>
+            <div className="h-1 w-24 bg-gradient-to-r from-brand-gold to-brand-purple rounded-full"></div>
+          </div>
 
           {/* PRICE */}
-          <div className="text-2xl font-semibold text-brand-gold">
-            {currencySymbol} {convertPrice(product.price)}
+          <div className="bg-gradient-to-r from-brand-gold/20 to-brand-purple/20 p-6 rounded-2xl border border-brand-gold/30">
+            <p className="text-sm text-brand-charcoal/70 mb-2">Price</p>
+            <p className="text-4xl font-bold text-brand-gold">
+              {currencySymbol} {convertPrice(product.price)}
+            </p>
           </div>
 
-          <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          {/* DESCRIPTION */}
+          <p className="text-lg text-brand-charcoal leading-relaxed">
+            {product.description}
+          </p>
 
-          {/* STOCK + RATING (same as ProductPage) */}
-          <div className="flex items-center gap-6">
-            <div className="text-sm text-gray-600">
-              Stock: <span className="font-medium">{product.stock || "—"}</span>
+          {/* STOCK / RATING */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Stock</p>
+              <p className="text-2xl font-bold text-brand-navy">{product.stock}</p>
             </div>
-            <div className="text-sm text-gray-600">
-              Rating: <span className="font-medium">{product.rating || "—"}</span>
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Rating</p>
+              <p className="text-2xl font-bold text-brand-gold">⭐ {product.rating}</p>
             </div>
-            <div className="text-sm text-gray-600">
-              Reviews:{" "}
-              <span className="font-medium">{product.reviewsCount || 0}</span>
+            <div className="bg-white rounded-xl p-4 border border-brand-gold/20 text-center">
+              <p className="text-xs text-brand-charcoal/70 mb-1">Reviews</p>
+              <p className="text-2xl font-bold text-brand-navy">{product.reviewsCount || 0}</p>
             </div>
           </div>
 
-          {/* SIZE */}
+          {/* SIZE SELECTOR */}
           <div>
-            <div className="text-sm text-gray-600">Size</div>
-            <div className="mt-2 flex gap-2">
+            <label className="text-sm font-semibold text-brand-navy mb-3 block">Select Size</label>
+            <div className="flex gap-3 flex-wrap">
               {(product.sizes || ["S", "M", "L"]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setSelectedSize(s)}
-                  className={`px-3 py-2 rounded-full border ${
+                  className={`px-5 py-3 rounded-xl font-bold border-2 transition-all ${
                     selectedSize === s
-                      ? "bg-brand-navy text-white"
-                      : "bg-white text-gray-700"
+                      ? "bg-brand-gold text-brand-navy border-brand-gold shadow-lg shadow-brand-gold/30"
+                      : "bg-white text-brand-navy border-brand-gold/30 hover:border-brand-gold"
                   }`}
                 >
                   {s}
@@ -198,50 +215,55 @@ export default function SignatureProductPage() {
           </div>
 
           {/* QUANTITY */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
+          <div>
+            <label className="text-sm font-semibold text-brand-navy mb-3 block">Quantity</label>
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="px-3 py-2 rounded bg-white"
+                className="px-4 py-3 rounded-full bg-brand-navy text-brand-ivory hover:bg-brand-purple transition font-bold"
               >
-                -
+                −
               </button>
-              <div className="px-4 py-2 bg-white rounded">{qty}</div>
+
+              <div className="px-8 py-3 bg-white border-2 border-brand-gold rounded-full text-center text-2xl font-bold text-brand-navy">
+                {qty}
+              </div>
+
               <button
                 onClick={() => setQty((q) => q + 1)}
-                className="px-3 py-2 rounded bg-white"
+                className="px-4 py-3 rounded-full bg-brand-navy text-brand-ivory hover:bg-brand-purple transition font-bold"
               >
                 +
               </button>
             </div>
           </div>
 
-          {/* BUTTONS (IDENTICAL TO PRODUCT PAGE) */}
-          <div className="flex flex-wrap gap-4">
-
+          {/* BUTTONS */}
+          <div className="flex flex-col gap-3 pt-4">
             <button
               onClick={handleAddToCart}
-              className="px-6 py-3 rounded-full bg-brand-navy text-brand-ivory font-semibold hover:bg-brand-gold hover:text-brand-navy transition"
+              className="px-6 py-4 rounded-full bg-brand-navy text-brand-gold font-bold hover:shadow-lg hover:shadow-brand-navy/30 transition flex items-center justify-center gap-2"
             >
-              Add to Cart
+              <ShoppingBag size={20} /> Add to Cart
             </button>
 
-            <button
-              onClick={handleAddToWishlist}
-              className="px-4 py-3 rounded-full border border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition"
-            >
-              Add to Wishlist
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddToWishlist}
+                className="flex-1 px-4 py-4 rounded-full border-2 border-brand-gold text-brand-navy hover:bg-brand-gold hover:text-white transition font-bold flex items-center justify-center gap-2"
+              >
+                <Heart size={20} /> Wishlist
+              </button>
 
-            <button
-              onClick={handleCheckout}
-              className="px-6 py-3 rounded-full bg-brand-gold text-brand-navy font-semibold hover:bg-brand-navy hover:text-white transition"
-            >
-              Proceed to Checkout
-            </button>
+              <button
+                onClick={handleCheckout}
+                className="flex-1 px-4 py-4 rounded-full bg-brand-gold text-brand-navy font-bold hover:shadow-lg hover:shadow-brand-gold/50 transition flex items-center justify-center gap-2"
+              >
+                <Zap size={20} /> Checkout
+              </button>
+            </div>
           </div>
-
-        </div>
+        </motion.div>
       </section>
 
       <PopupModal
