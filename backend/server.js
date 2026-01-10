@@ -16,7 +16,17 @@ import shopRoutes from "./routes/shopRoutes.js";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// ✅ CORS configuration for Netlify + localhost
+app.use(cors({
+  origin: [
+    'http://localhost:5174',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL || 'https://royal-threads.netlify.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
