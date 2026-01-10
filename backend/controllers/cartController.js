@@ -1,5 +1,5 @@
 // ⭐⭐⭐ FINAL CART CONTROLLER (paste into controllers/cartController.js)
-import Cart from "../models/cart.js";
+import Cart from "../models/Cart.js";
 
 export const getCart = async (req, res) => {
   try {
