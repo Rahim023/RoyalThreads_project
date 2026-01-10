@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useRef } from 'react';
-import './floatinglines.css';
+import './FloatingLines.css';
 import {
   Scene,
   OrthographicCamera,

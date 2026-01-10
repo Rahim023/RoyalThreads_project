@@ -16,7 +16,7 @@ import { useWishlist } from "../pages/WishlistContext";
 import { useCurrency } from "../context/CurrencyContext";
 
 import SupportChat from "../components/SupportChat";
-import SearchModal from "./searchModal.jsx";
+import SearchModal from "./SearchModal.jsx";
 
 export default function Header() {
   const navigate = useNavigate();

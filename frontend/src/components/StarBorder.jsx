@@ -1,5 +1,5 @@
 import React from 'react';
-import './starborder.css';
+import './StarBorder.css';
 
 const StarBorder = ({
   as: Component = 'button',
