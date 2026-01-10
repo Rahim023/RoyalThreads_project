@@ -25,8 +25,9 @@ export default function Home() {
       try {
         setLoading(true);
 
-        const trendingRes = await axios.get("http://localhost:5000/api/products/trending");
-        const allRes = await axios.get("http://localhost:5000/api/products");
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const trendingRes = await axios.get(`${API_BASE}/api/products/trending`);
+        const allRes = await axios.get(`${API_BASE}/api/products`);
 
         const mappedTrending = trendingRes.data.map(p => ({
           ...p,

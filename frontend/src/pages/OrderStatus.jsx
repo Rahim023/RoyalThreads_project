@@ -37,7 +37,8 @@ export default function OrderStatus() {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -65,8 +66,9 @@ export default function OrderStatus() {
     try {
       const token = localStorage.getItem("token");
 
+      const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
       const res = await fetch(
-        `http://localhost:5000/api/orders/cancel/${order._id}`,
+        `${API_BASE}/api/orders/cancel/${order._id}`,
         {
           method: "PUT",
           headers: {
@@ -93,7 +95,8 @@ export default function OrderStatus() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:5000/api/orders/${order._id}`, {
+      const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/api/orders/${order._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

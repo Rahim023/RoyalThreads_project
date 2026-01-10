@@ -12,7 +12,8 @@ export default function Accessories() {
     const fetchAccessories = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/products");
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const response = await axios.get(`${API_BASE}/api/products`);
         const allProducts = response.data;
 
         // Filter only Accessories category

@@ -18,7 +18,7 @@ export default function Wedding() {
   const [currentHero, setCurrentHero] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const BASE_URL = "http://localhost:5000/api";
+  const BASE_URL = `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api`;
   const exploreRef = useRef(null);
   const navigate = useNavigate();
 

@@ -32,15 +32,16 @@ export default function ProductPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
         // First try to fetch from products endpoint
-        let res = await fetch(`http://localhost:5000/api/products/${id}`);
+        let res = await fetch(`${API_BASE}/api/products/${id}`);
         let data = null;
 
         if (res.ok) {
           data = await res.json();
         } else {
           // If not found in products, try signatures endpoint
-          res = await fetch(`http://localhost:5000/api/signatures/${id}`);
+          res = await fetch(`${API_BASE}/api/signatures/${id}`);
           if (res.ok) {
             data = await res.json();
           }

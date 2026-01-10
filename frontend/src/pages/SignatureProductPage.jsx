@@ -29,8 +29,9 @@ export default function SignatureProductPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
         const res = await fetch(
-          `http://localhost:5000/api/signatures/slug/${slug}`
+          `${API_BASE}/api/signatures/slug/${slug}`
         );
 
         if (!res.ok) return console.error("Signature fetch failed");

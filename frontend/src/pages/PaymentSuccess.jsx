@@ -34,7 +34,8 @@ export default function PaymentSuccess() {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          await fetch("http://localhost:5000/api/orders", {
+          const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+          await fetch(`${API_BASE}/api/orders`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

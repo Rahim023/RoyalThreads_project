@@ -8,7 +8,8 @@ export default function ProductList() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const res = await axios.get(`${API_BASE}/api/products`);
         console.log("📥 Raw response from /api/products:", res.data);
 
         if (!res.data || res.data.length === 0) {

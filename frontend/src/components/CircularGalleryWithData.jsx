@@ -17,7 +17,8 @@ export default function CircularGalleryWithData({
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products"); // Update your backend URL
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const res = await axios.get(`${API_BASE}/api/products`);
         const formatted = res.data.map((p) => ({
           img: p.img || p.image,
           title: p.title || p.name,
