@@ -29,6 +29,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ✅ Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "✅ Backend is running", 
+    env: process.env.NODE_ENV || "development",
+    mongoConnected: mongoose.connection.readyState === 1
+  });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/cart", cartRoutes);
