@@ -73,7 +73,7 @@ export default function PaymentMethod() {
       <Header />
 
       <section className="py-16 px-6 md:px-20 flex-1 bg-brand-mist">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold text-brand-navy text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-sansTrend font-bold text-brand-navy text-center mb-10">
           Choose Payment Method
         </h1>
 

@@ -133,9 +133,11 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 text-4xl md:text-6xl font-serifFancy text-brand-navy"
+          className="text-6xl font-fancy text-center pt-10 text-brand-maroon/90"
         >
-          Our Collections
+          Explore Royal <span className="text-brand-gold">Style!</span>
+                    <div className="h-1 w-48 bg-brand-navy/60 mb-2 mt-4 mx-auto rounded-full"></div>
+
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -164,9 +166,11 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 text-4xl md:text-6xl font-serifFancy text-brand-navy"
+          className="text-6xl font-fancy text-center pt-10 text-brand-gold/90"
         >
-          Exclusive Collections
+          Exclusive <span className="text-brand-navy">collections</span>
+                    <div className="h-1 w-48 bg-brand-navy/60 mb-2 mt-4 mx-auto rounded-full"></div>
+
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -201,14 +205,14 @@ export default function Home() {
           className="text-6xl font-fancy text-center pt-10 text-brand-gold/90"
         >
           Explore the <span className="text-brand-navy">Trending</span>
-          <div className="h-1 w-48 bg-brand-navy/60 mb-6 mt-4 mx-auto rounded-full"></div>
+          <div className="h-1 w-48 bg-brand-navy/60 mb-2 mt-4 mx-auto rounded-full"></div>
         </motion.h3>
 
         <p className="text-brand-maroon max-w-xl text-center font-sansTrend font-light mx-auto mt-2 text-lg">
           Inspired by global runway trends and handcrafted traditions.
         </p>
 
-        <div className="w-full h-full mt-12">
+        <div className="w-full h-full mt-2">
           {trendingProducts.length > 0 ? (
             <CircularGallery
               items={trendingProducts.map(p => ({
