@@ -7,7 +7,7 @@ import Header from "../components/Header";
 import LoginGuard from "../components/LoginGuard";
 import ProductCard from "../components/ProductCard";
 import CardSwap, { Card } from "../components/CardSwap";
-import BlurText from "../components/BlurText";
+import BlurText from "../components/BlurText.jsx";
 import ShinyText from "../components/ShinyText";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
