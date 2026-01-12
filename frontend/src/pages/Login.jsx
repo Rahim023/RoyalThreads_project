@@ -4,7 +4,7 @@ import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import Header from "../components/Header";
-import { api } from "../services/api";
+import api from "../services/api";
 import Silk from "../components/Silk";
 
 export default function Login() {

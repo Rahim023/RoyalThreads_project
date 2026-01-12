@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
-import { api } from "../services/api";
+import api from "../services/api";
 import { motion } from "framer-motion";
 import Silk from "../components/Silk";
 
