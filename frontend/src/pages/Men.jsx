@@ -53,7 +53,7 @@ export default function Men() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/products`);
+        const res = await axios.get(`${BASE_URL}/api/products`);
         const menProducts = res.data.filter((p) => p.Men === true);
 
         // 🇨🇦 Canadian Western Keywords (High Priority)
