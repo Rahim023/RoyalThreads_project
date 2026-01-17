@@ -9,7 +9,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const BASE_URL = `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api`;
+  const BASE_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api`;
 
   // 🔥 Axios instance that ALWAYS fetches latest token
   const axiosInstance = axios.create({ baseURL: BASE_URL });

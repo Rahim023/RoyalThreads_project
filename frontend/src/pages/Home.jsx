@@ -25,7 +25,7 @@ export default function Home() {
       try {
         setLoading(true);
 
-        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const trendingRes = await axios.get(`${API_BASE}/api/products/trending`);
         const allRes = await axios.get(`${API_BASE}/api/products`);
 

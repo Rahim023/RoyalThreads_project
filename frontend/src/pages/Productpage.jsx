@@ -32,7 +32,7 @@ export default function ProductPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
         // First try to fetch from products endpoint
         let res = await fetch(`${API_BASE}/api/products/${id}`);
         let data = null;

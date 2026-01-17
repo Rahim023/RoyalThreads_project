@@ -11,7 +11,7 @@ export const WishlistProvider = ({ children }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const axiosInstance = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api`,
+    baseURL: `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api`,
   });
 
   axiosInstance.interceptors.request.use((config) => {

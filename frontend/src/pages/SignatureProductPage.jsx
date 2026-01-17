@@ -29,7 +29,7 @@ export default function SignatureProductPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(
           `${API_BASE}/api/signatures/slug/${slug}`
         );

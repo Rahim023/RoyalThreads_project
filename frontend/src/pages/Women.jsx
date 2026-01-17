@@ -22,7 +22,7 @@ export default function Women() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const navigate = useNavigate();
-  const BASE_URL = `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api`;
+  const BASE_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api`;
   const filterRef = useRef(null);
   const { showLoginModal: cartLoginModal, setShowLoginModal: setCartLoginModal } = useCart();
   const { showLoginModal: wishlistLoginModal, setShowLoginModal: setWishlistLoginModal } = useWishlist();

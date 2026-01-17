@@ -37,7 +37,7 @@ export default function OrderStatus() {
       try {
         const token = localStorage.getItem("token");
 
-        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(`${API_BASE}/api/orders/${orderId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
